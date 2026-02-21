@@ -1,0 +1,13 @@
+langchain
+langchain-community
+langchain-openai
+faiss-cpu
+pypdf
+unstructured
+python-dotenv
+tqdm
+loguru
+sentence-transformers
+langchain-groq
+fastapi
+uvicorn
