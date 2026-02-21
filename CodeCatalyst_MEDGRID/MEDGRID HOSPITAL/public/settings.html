@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+        <title>Settings</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="topbar">
+    <div class="brand">MEDGRID Hospital</div>
+    <div class="top-actions"><div class="muted">Admin</div></div>
+</header>
+
+<div class="layout">
+    <aside class="sidebar">
+        <h2>Hospital Panel</h2>
+        <nav class="nav">
+            <a href="dashboard.html">Dashboard</a>
+            <a href="bed-management.html">Bed Management</a>
+            <a href="patients.html">Patients</a>
+            <a href="ambulance-tracking.html">Ambulance Tracking</a>
+            <a href="settings.html" class="active">Settings</a>
+        </nav>
+    </aside>
+
+    <main class="content">
+        <div class="container">
+            <h1>Settings</h1>
+
+            <div class="card">
+                <label>Hospital Name</label>
+                <input type="text" value="City Care Hospital">
+
+                <label style="margin-top:12px">Emergency Contact</label>
+                <input type="text" value="9876543210">
+
+                <div style="margin-top:16px" class="flex">
+                    <button class="primary">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script src="api.js"></script>
+</body>
+</html>

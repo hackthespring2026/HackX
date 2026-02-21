@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MEDGRID - Emergency Response System</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="app-container">
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="navbar-brand">
+            <h1>🏥 MEDGRID</h1>
+        </div>
+        <div class="navbar-menu" id="navbarMenu">
+            <a href="#" onclick="showPage('login')" class="nav-link">Login/SignUp</a>
+            <a href="#" onclick="showPage('emergency')" class="nav-link">Emergency</a>
+            <a href="#" onclick="showPage('profile')" class="nav-link">Profile</a>
+            <a href="#" onclick="showPage('family')" class="nav-link">Family</a>
+            <a href="#" onclick="logout()" class="nav-link">Logout</a>
+        </div>
+    </nav>
+
+    <div class="mobile-container">
+
+        <!-- ============ LOGIN/SIGNUP PAGE ============ -->
+        <div id="loginPage" class="page active">
+            <div class="header">
+                <h2>Welcome to MEDGRID</h2>
+                <p>Smart Emergency Response System</p>
+            </div>
+
+            <div class="form-container">
+                <div class="form-tabs">
+                    <button class="tab-btn active" onclick="switchTab('login')">Login</button>
+                    <button class="tab-btn" onclick="switchTab('signup')">Sign Up</button>
+                </div>
+
+                <!-- Login Form -->
+                <form id="loginForm" class="form-section active">
+                    <h3>Login to Your Account</h3>
+                    <div class="form-group">
+                        <label>Mobile Number</label>
+                        <input type="tel" placeholder="Enter your mobile number" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" placeholder="Enter your password" required>
+                    </div>
+                    <button type="submit" class="btn-primary">Login</button>
+                </form>
+
+                <!-- Sign Up Form -->
+                <form id="signupForm" class="form-section">
+                    <h3>Create Your Account</h3>
+                    
+                    <h4 class="section-title">Personal Information</h4>
+                    <div class="form-group">
+                        <label>Full Name *</label>
+                        <input type="text" placeholder="Enter your full name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Mobile Number *</label>
+                        <input type="tel" placeholder="Enter your mobile number" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Aadhar Number *</label>
+                        <input type="text" placeholder="Enter your Aadhar number" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Password *</label>
+                        <input type="password" placeholder="Create a password" required>
+                    </div>
+
+                    <h4 class="section-title">Medical Information</h4>
+                    <div class="form-group">
+                        <label>Allergies</label>
+                        <textarea placeholder="List any allergies (e.g., Penicillin, Peanuts)"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Current Medications</label>
+                        <textarea placeholder="Past problems or medications you are currently taking"></textarea>
+                    </div>
+
+                    <h4 class="section-title">Insurance Information</h4>
+                    <div class="form-group">
+                        <label>Insurance Number</label>
+                        <input type="text" placeholder="Enter insurance number">
+                    </div>
+                    <div class="form-group">
+                        <label>Insurance Company</label>
+                        <input type="text" placeholder="Enter insurance company name">
+                    </div>
+
+                    <h4 class="section-title">Family Contact Details</h4>
+                    <div class="form-group">
+                        <label>Family Member Name *</label>
+                        <input type="text" placeholder="Primary emergency contact name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Family Member Mobile *</label>
+                        <input type="tel" placeholder="Primary emergency contact number" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Family Member Email</label>
+                        <input type="email" placeholder="Primary emergency contact email">
+                    </div>
+
+                    <button type="submit" class="btn-primary">Create Account</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- ============ EMERGENCY PAGE ============ -->
+        <div id="emergencyPage" class="page">
+            <div class="header">
+                <h2>MEDGRID Emergency</h2>
+                <p>Quick Emergency Response</p>
+            </div>
+
+            <!-- Profile Section -->
+            <div class="profile-card">
+                <h3>Patient Profile</h3>
+                <p><strong>Name:</strong> <span id="profileName">Nirav Chaudhari</span></p>
+                <p><strong>Blood Group:</strong> B+</p>
+                <p><strong>Medical History:</strong> None</p>
+                <p><strong>Emergency Contact:</strong> +91 9876543210</p>
+            </div>
+
+            <!-- Location Section -->
+            <div class="location-box">
+                <p>📍 Current Location</p>
+                <p class="location-text">Ahmedabad, Gujarat</p>
+            </div>
+
+            <!-- Emergency Section -->
+            <div class="emergency-section">
+                <button class="emergency-btn" onclick="triggerEmergency()">🚨 TRIGGER EMERGENCY</button>
+                <p class="small-text">Press if you need immediate help</p>
+            </div>
+
+            <!-- Bystander Mode -->
+            <div class="bystander-section">
+                <h4>Bystander Mode</h4>
+                <p>If victim is unconscious, nearby person can trigger help.</p>
+                <button class="bystander-btn" onclick="reportAccident()">⚠ REPORT ACCIDENT</button>
+            </div>
+
+            <!-- Family Alert System -->
+            <div class="family-section">
+                <h4>Family Alert System</h4>
+                <p>Emergency contacts will receive live updates and hospital details.</p>
+            </div>
+        </div>
+
+        <!-- ============ PROFILE PAGE ============ -->
+        <div id="profilePage" class="page">
+            <div class="header">
+                <h2>Your Profile</h2>
+                <p>View and edit your information</p>
+            </div>
+
+            <div class="profile-card">
+                <h3>Personal Information</h3>
+                <p><strong>Name:</strong> Nirav Chaudhari</p>
+                <p><strong>Mobile:</strong> +91 9876543210</p>
+                <p><strong>Aadhar:</strong> XXXX XXXX 1234</p>
+            </div>
+
+            <div class="profile-card">
+                <h3>Medical Information</h3>
+                <p><strong>Blood Group:</strong> B+</p>
+                <p><strong>Allergies:</strong> None</p>
+                <p><strong>Current Medications:</strong> None</p>
+            </div>
+
+            <div class="profile-card">
+                <h3>Insurance Information</h3>
+                <p><strong>Insurance Number:</strong> INS123456</p>
+                <p><strong>Insurance Company:</strong> ABC Insurance</p>
+            </div>
+
+            <button class="btn-primary" onclick="editProfile()">Edit Profile</button>
+        </div>
+
+        <!-- ============ FAMILY PAGE ============ -->
+        <div id="familyPage" class="page">
+            <div class="header">
+                <h2>Family Contacts</h2>
+                <p>Emergency contacts and family details</p>
+            </div>
+
+            <div class="family-card">
+                <h4>Primary Contact</h4>
+                <p><strong>Name:</strong> Rajesh Chaudhari</p>
+                <p><strong>Relation:</strong> Father</p>
+                <p><strong>Mobile:</strong> +91 9123456789</p>
+                <p><strong>Email:</strong> rajesh@email.com</p>
+            </div>
+
+            <div class="family-card">
+                <h4>Secondary Contact</h4>
+                <p><strong>Name:</strong> Priya Chaudhari</p>
+                <p><strong>Relation:</strong> Mother</p>
+                <p><strong>Mobile:</strong> +91 8987654321</p>
+                <p><strong>Email:</strong> priya@email.com</p>
+            </div>
+
+            <button class="btn-primary" onclick="addFamilyMember()">Add Family Member</button>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    // Show/Hide Pages
+    function showPage(pageName) {
+        const pages = document.querySelectorAll('.page');
+        pages.forEach(page => page.classList.remove('active'));
+        document.getElementById(pageName + 'Page').classList.add('active');
+    }
+
+    // Switch between Login and Sign Up
+    function switchTab(tabName) {
+        const forms = document.querySelectorAll('.form-section');
+        const btns = document.querySelectorAll('.tab-btn');
+        
+        forms.forEach(form => form.classList.remove('active'));
+        btns.forEach(btn => btn.classList.remove('active'));
+        
+        if(tabName === 'login') {
+            document.getElementById('loginForm').classList.add('active');
+            btns[0].classList.add('active');
+        } else {
+            document.getElementById('signupForm').classList.add('active');
+            btns[1].classList.add('active');
+        }
+    }
+
+    // Emergency Functions
+    function triggerEmergency() {
+        alert('Emergency triggered! Sending alerts to emergency services and family contacts...');
+    }
+
+    function reportAccident() {
+        alert('Accident reported! Location details are being sent to nearest medical facilities...');
+    }
+
+    function logout() {
+        alert('Logged out successfully!');
+        showPage('login');
+    }
+
+    function editProfile() {
+        alert('Edit profile functionality coming soon!');
+    }
+
+    function addFamilyMember() {
+        alert('Add family member functionality coming soon!');
+    }
+
+    // Form submission
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        alert('Login successful!');
+        showPage('emergency');
+    });
+
+    document.getElementById('signupForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        alert('Account created successfully!');
+        showPage('emergency');
+    });
+</script>
+
+    <!-- Emergency Status -->
+    <div class="status-box">
+        <h4>Status</h4>
+        <p>Awaiting Emergency Trigger...</p>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <p>Fast | Intelligent | Paperless</p>
+    </div>
+
+</div>
+
+</body>
+</html>
