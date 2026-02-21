@@ -1,0 +1,38 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+
+# venv
+.venv/
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*~
+.DS_Store
+
+# env files (API keys)
+.env
+.env.local
+
+# model files (auto-downloaded)
+*.bin
+*.safetensors
+*.onnx
+
+# node
+node_modules/
+
+# misc
+*.log
+.ipynb_checkpoints/
+test_report.txt
+docs/insider_docs/
