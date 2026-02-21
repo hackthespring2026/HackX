@@ -1,0 +1,457 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 10px;
+}
+
+/* App Container */
+.app-container {
+    width: 100%;
+    max-width: 420px;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0px 20px 50px rgba(0,0,0,0.3);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Navigation Bar */
+.navbar {
+    background: linear-gradient(135deg, #d32f2f 0%, #c62828 100%);
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: white;
+}
+
+.navbar-brand h1 {
+    margin: 0;
+    font-size: 22px;
+    color: white;
+}
+
+.navbar-menu {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.nav-link {
+    color: white;
+    text-decoration: none;
+    font-size: 11px;
+    padding: 6px 12px;
+    border-radius: 15px;
+    background: rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: none;
+}
+
+.nav-link:hover {
+    background: rgba(255, 255, 255, 0.4);
+    transform: scale(1.05);
+}
+
+/* Mobile Container */
+.mobile-container {
+    flex: 1;
+    padding: 25px;
+    overflow-y: auto;
+    max-height: 75vh;
+}
+
+/* Page Visibility */
+.page {
+    display: none;
+    animation: fadeIn 0.3s ease;
+}
+
+.page.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Header */
+.header {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.header h2 {
+    margin: 10px 0 0 0;
+    color: #d32f2f;
+    font-size: 28px;
+}
+
+.header p {
+    font-size: 14px;
+    color: #666;
+    margin: 5px 0 0 0;
+}
+
+/* Profile Card */
+.profile-card {
+    background: #f5f5f5;
+    padding: 15px;
+    border-radius: 12px;
+    margin-bottom: 15px;
+}
+
+.profile-card h3 {
+    margin-top: 0;
+    color: #333;
+    font-size: 16px;
+}
+
+.profile-card p {
+    margin: 8px 0;
+    font-size: 14px;
+    color: #555;
+}
+
+/* Family Card */
+.family-card {
+    background: #f5f5f5;
+    padding: 15px;
+    border-radius: 12px;
+    margin-bottom: 12px;
+    border-left: 4px solid #d32f2f;
+}
+
+.family-card h4 {
+    margin-top: 0;
+    color: #d32f2f;
+}
+
+.family-card p {
+    margin: 6px 0;
+    font-size: 13px;
+    color: #555;
+}
+
+/* Location Box */
+.location-box {
+    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+    padding: 15px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    text-align: center;
+    border: 2px solid #2196F3;
+}
+
+.location-box p {
+    margin: 5px 0;
+    font-size: 14px;
+}
+
+.location-text {
+    font-weight: bold;
+    color: #1565c0;
+    font-size: 16px;
+}
+
+/* Emergency Section */
+.emergency-section {
+    text-align: center;
+    margin-bottom: 20px;
+    padding: 15px;
+    background: #ffebee;
+    border-radius: 12px;
+    border: 2px solid #d32f2f;
+}
+
+.emergency-btn {
+    background: linear-gradient(135deg, #d32f2f 0%, #c62828 100%);
+    color: white;
+    border: none;
+    padding: 18px 30px;
+    font-size: 18px;
+    border-radius: 50px;
+    cursor: pointer;
+    width: 100%;
+    font-weight: bold;
+    box-shadow: 0px 8px 20px rgba(211, 47, 47, 0.4);
+    transition: all 0.3s ease;
+}
+
+.emergency-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0px 12px 30px rgba(211, 47, 47, 0.6);
+}
+
+.small-text {
+    margin: 10px 0 0 0;
+    font-size: 12px;
+    color: #d32f2f;
+}
+
+/* Bystander Section */
+.bystander-section {
+    background: #fff3e0;
+    padding: 12px;
+    border-radius: 12px;
+    margin-bottom: 15px;
+    border-left: 4px solid #ff9800;
+}
+
+.bystander-section h4 {
+    margin: 0 0 8px 0;
+    color: #ff6f00;
+}
+
+.bystander-section p {
+    margin: 0 0 10px 0;
+    font-size: 13px;
+    color: #666;
+}
+
+.bystander-btn {
+    background: #ff9800;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    width: 100%;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.bystander-btn:hover {
+    background: #f57c00;
+    transform: translateY(-2px);
+}
+
+/* Family Section */
+.family-section {
+    background: #f3e5f5;
+    padding: 12px;
+    border-radius: 12px;
+    border-left: 4px solid #9c27b0;
+}
+
+.family-section h4 {
+    margin: 0 0 8px 0;
+    color: #6a1b9a;
+}
+
+.family-section p {
+    margin: 0;
+    font-size: 13px;
+    color: #666;
+}
+
+.emergency-btn:hover {
+    background: #b71c1c;
+}
+
+.small-text {
+    font-size: 12px;
+    color: gray;
+}
+
+/* Bystander */
+.bystander-section {
+    background: #fff3e0;
+    padding: 15px;
+    border-radius: 15px;
+    margin-bottom: 15px;
+}
+
+.bystander-btn {
+    background: #ff9800;
+    color: white;
+    border: none;
+    padding: 12px;
+    width: 100%;
+    border-radius: 25px;
+    font-size: 14px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.bystander-btn:hover {
+    background: #e65100;
+}
+
+/* Family */
+.family-section {
+    background: #e8f5e9;
+    padding: 15px;
+    border-radius: 15px;
+    margin-bottom: 15px;
+}
+
+/* Status Box */
+.status-box {
+    background: #f1f1f1;
+    padding: 12px;
+    border-radius: 15px;
+    font-size: 14px;
+    color: #555;
+}
+
+/* Footer */
+.footer {
+    text-align: center;
+    margin-top: 15px;
+    font-size: 12px;
+    color: gray;
+}
+
+/* Form Container */
+.form-container {
+    background: white;
+}
+
+.form-tabs {
+    display: flex;
+    gap: 0;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 12px;
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    color: #999;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.tab-btn.active {
+    color: #d32f2f;
+    border-bottom-color: #d32f2f;
+}
+
+.form-section {
+    display: none;
+}
+
+.form-section.active {
+    display: block;
+}
+
+.form-section h3 {
+    color: #333;
+    margin: 0 0 20px 0;
+    font-size: 20px;
+}
+
+.section-title {
+    color: #d32f2f;
+    font-size: 14px;
+    margin: 20px 0 15px 0;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 8px;
+    font-weight: 600;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 6px;
+    color: #333;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: inherit;
+    transition: all 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #d32f2f;
+    box-shadow: 0 0 8px rgba(211, 47, 47, 0.2);
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+/* Buttons */
+.btn-primary {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, #d32f2f 0%, #c62828 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 15px;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0px 8px 20px rgba(211, 47, 47, 0.4);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+}
+
+/* Update Profile Card Styling */
+.profile-card {
+    background: linear-gradient(135deg, #f5f5f5 0%, #fafafa 100%);
+    border-left: 4px solid #d32f2f;
+}
+
+.profile-card h3 {
+    color: #d32f2f;
+}
+
+/* Scrollbar Styling */
+.mobile-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.mobile-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.mobile-container::-webkit-scrollbar-thumb {
+    background: #d32f2f;
+    border-radius: 3px;
+}
+
+.mobile-container::-webkit-scrollbar-thumb:hover {
+    background: #c62828;
+}

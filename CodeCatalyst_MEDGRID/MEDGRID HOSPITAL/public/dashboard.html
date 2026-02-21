@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+        <title>Hospital Emergency Control Panel</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="topbar">
+    <div class="brand">MEDGRID Hospital</div>
+    <div class="top-actions"><div class="muted">Control</div></div>
+</header>
+
+<div class="layout">
+    <aside class="sidebar">
+        <h2>Hospital Panel</h2>
+        <nav class="nav">
+            <a href="dashboard.html" class="active">Dashboard</a>
+            <a href="bed-management.html">Bed Management</a>
+            <a href="patients.html">Patients</a>
+            <a href="ambulance-tracking.html">Ambulance Tracking</a>
+            <a href="settings.html">Settings</a>
+        </nav>
+    </aside>
+
+    <main class="content">
+        <div class="container">
+            <h1>Dashboard Overview</h1>
+
+            <div class="card">
+                <div class="flex">
+                    <div>
+                        <h3>Total Beds: 120</h3>
+                        <p class="muted">Available Beds: 32</p>
+                    </div>
+                    <div style="margin-left:auto;text-align:right">
+                        <p class="muted">ICU Beds: 5</p>
+                        <p class="muted">Active Emergencies: 3</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Latest Emergency Alert</h3>
+                <p>Accident Case – 2.3 km away – ETA 7 mins</p>
+                <div class="flex" style="margin-top:12px">
+                    <button class="accept">Accept</button>
+                    <button class="reject">Reject</button>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script src="api.js"></script>
+</body>
+</html>

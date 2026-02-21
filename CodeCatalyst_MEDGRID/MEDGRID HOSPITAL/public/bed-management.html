@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+        <title>Bed Management</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="topbar">
+    <div class="brand">MEDGRID Hospital</div>
+    <div class="top-actions"><div class="muted">Ops</div></div>
+</header>
+
+<div class="layout">
+    <aside class="sidebar">
+        <h2>Hospital Panel</h2>
+        <nav class="nav">
+            <a href="dashboard.html">Dashboard</a>
+            <a href="bed-management.html" class="active">Bed Management</a>
+            <a href="patients.html">Patients</a>
+            <a href="ambulance-tracking.html">Ambulance Tracking</a>
+            <a href="settings.html">Settings</a>
+        </nav>
+    </aside>
+
+    <main class="content">
+        <div class="container">
+            <h1>Bed & ICU Management</h1>
+
+            <div class="card">
+                <label>Total Beds</label>
+                <input type="number" value="120">
+
+                <label style="margin-top:12px">Available Beds</label>
+                <input type="number" value="32">
+
+                <label style="margin-top:12px">ICU Beds</label>
+                <input type="number" value="5">
+
+                <label style="margin-top:12px">Oxygen Status</label>
+                <select>
+                    <option>Available</option>
+                    <option>Low</option>
+                    <option>Critical</option>
+                </select>
+
+                <div style="margin-top:16px">
+                    <button class="primary">Update</button>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script src="api.js"></script>
+</body>
+</html>
