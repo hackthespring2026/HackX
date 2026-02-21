@@ -1,0 +1,268 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-geist-mono);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+}
+
+:root {
+  /* Light Civic Theme — warm gray / off-white, forest green accent */
+  --background: #f5f5f0;
+  --foreground: #1e293b;
+
+  --card: #ffffff;
+  --card-foreground: #1e293b;
+
+  --popover: #ffffff;
+  --popover-foreground: #1e293b;
+
+  --primary: #166534; /* forest green-800 */
+  --primary-foreground: #ffffff;
+
+  --secondary: #e8e8e3;
+  --secondary-foreground: #1e293b;
+
+  --muted: #eceee8;
+  --muted-foreground: #64748b;
+
+  --accent: #eceee8;
+  --accent-foreground: #1e293b;
+
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+
+  --border: #d4d4cd;
+  --input: #d4d4cd;
+  --ring: #166534;
+
+  --radius: 0.5rem;
+
+  /* Governance state colors */
+  --color-approved: #16a34a;
+  --color-pending: #d97706;
+  --color-rejected: #dc2626;
+
+  /* Sidebar */
+  --sidebar: #ffffff;
+  --sidebar-foreground: #1e293b;
+  --sidebar-primary: #166534;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #eceee8;
+  --sidebar-accent-foreground: #1e293b;
+  --sidebar-border: #d4d4cd;
+  --sidebar-ring: #166534;
+}
+
+.dark {
+  /* Dark Civic Theme — deep slate, green accent */
+  --background: #0c1222;
+  --foreground: #e2e8f0;
+
+  --card: #131d33;
+  --card-foreground: #e2e8f0;
+
+  --popover: #131d33;
+  --popover-foreground: #e2e8f0;
+
+  --primary: #22c55e; /* green-500 */
+  --primary-foreground: #0c1222;
+
+  --secondary: #1a2640;
+  --secondary-foreground: #e2e8f0;
+
+  --muted: #1a2640;
+  --muted-foreground: #8097b8;
+
+  --accent: #1a2640;
+  --accent-foreground: #e2e8f0;
+
+  --destructive: #7f1d1d;
+  --destructive-foreground: #ffffff;
+
+  --border: #243352;
+  --input: #243352;
+  --ring: #22c55e;
+
+  /* Sidebar Dark */
+  --sidebar: #0c1222;
+  --sidebar-foreground: #e2e8f0;
+  --sidebar-primary: #22c55e;
+  --sidebar-primary-foreground: #0c1222;
+  --sidebar-accent: #1a2640;
+  --sidebar-accent-foreground: #e2e8f0;
+  --sidebar-border: #243352;
+  --sidebar-ring: #22c55e;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  .leaflet-container {
+    @apply bg-card! font-[inherit]!;
+  }
+  .leaflet-container a {
+    @apply text-inherit!;
+  }
+  .leaflet-div-icon {
+    @apply bg-transparent! border-none!;
+  }
+  .leaflet-popup-content-wrapper,
+  .leaflet-popup-content,
+  .leaflet-popup-content p {
+    @apply [all:unset]!;
+  }
+  .leaflet-popup {
+    @apply animate-none!;
+  }
+  .leaflet-popup-close-button {
+    @apply ring-offset-background focus:ring-ring bg-secondary rounded-xs opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:outline-hidden;
+  }
+  .leaflet-tooltip,
+  .leaflet-draw-tooltip {
+    @apply bg-foreground! text-background! animate-none! rounded-md! border-none! p-0! px-3! py-1.5! shadow-none!;
+  }
+  .leaflet-draw-tooltip:before {
+    @apply bg-foreground top-1/2! right-0.5! size-2.5 translate-x-1/2 -translate-y-1/2 rotate-45 rounded-[2px] border-none!;
+  }
+  .leaflet-error-draw-tooltip {
+    @apply bg-destructive! text-white!;
+  }
+  .leaflet-error-draw-tooltip:before {
+    @apply bg-destructive;
+  }
+  .leaflet-draw-tooltip-subtext {
+    @apply text-background!;
+  }
+  .leaflet-popup-tip-container,
+  .leaflet-tooltip-top:before,
+  .leaflet-tooltip-bottom:before,
+  .leaflet-tooltip-left:before,
+  .leaflet-tooltip-right:before {
+    @apply hidden;
+  }
+  .leaflet-control-attribution {
+    @apply bg-muted! rounded-md px-1! py-0.5! text-[10px] leading-none! text-inherit!;
+  }
+  .leaflet-draw-guide-dash {
+    @apply rounded-full;
+  }
+  .leaflet-edit-marker-selected {
+    @apply border-transparent! bg-transparent!;
+  }
+  .marker-cluster div {
+    @apply font-[inherit];
+  }
+}
+
+html {
+}
+
+/* Civic Design Enhancements */
+@layer utilities {
+  .civic-header {
+    @apply text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground;
+  }
+
+  .civic-card {
+    @apply bg-card border border-border rounded-xl shadow-sm;
+  }
+
+  .civic-glow {
+    box-shadow:
+      0 0 20px rgba(34, 197, 94, 0.05),
+      0 0 60px rgba(34, 197, 94, 0.02);
+  }
+
+  /* Safe area padding for mobile devices with notches */
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom, 0);
+  }
+
+  .pt-safe {
+    padding-top: env(safe-area-inset-top, 0);
+  }
+
+  .pl-safe {
+    padding-left: env(safe-area-inset-left, 0);
+  }
+
+  .pr-safe {
+    padding-right: env(safe-area-inset-right, 0);
+  }
+}
+
+/* Scrollbar styling for dark civic theme */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--muted-foreground);
+}
+
+/* Discord-style typing bounce */
+@keyframes discordBounce {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+  }
+  30% {
+    transform: translateY(-4px);
+  }
+}
