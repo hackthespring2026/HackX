@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+
+    <style>
+  html, body {
+    height: 100%;
+    margin: 0;
+  }
+
+  .center-wrapper {
+    display: flex;
+    justify-content: center;   /* horizontal */
+    align-items: center;       /* vertical */
+  }
+
+.center{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+a {
+  text-decoration: none;
+}
+
+</style>
+</head>
+<body>
+    
+    <nav style='height:170px; background-color: #a6c3f7;' class="navbar navbar-inverse nav-dark">
+  <div style=" color:aliceblue;" class="container-fluid">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="#"><img style="height: 150px; width:150px;" src="static/images.png" alt="LOGo"></a>
+    </div>
+    <ul class="nav navbar-nav">
+      
+
+       <li style="width: 300px;" class="active"><a class='text-danger' style=" font-size:30px; font-style:italic" href="/alert">Suspicious Alerts</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- Realtime alert banner -->
+<div id="alertBanner" style="display:none; background:#8b0000; color:white; padding:14px; text-align:center; font-size:20px;">
+  🚨 Suspicious activity detected
+</div>
+
+<!-- Detection controls -->
+<div style="margin:12px; text-align:center;">
+  <button id="startBtn" class="btn btn-success">Start Detection</button>
+  <button id="stopBtn" class="btn btn-danger">Stop Detection</button>
+  <span id="detStatus" style="margin-left:12px; font-weight:bold; color:#fff;"></span>
+</div>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+
+
+
+    
+    <div class="form-box center">
+  <form style="width: 400px;" id="drawerForm" method="POST" action="/submit">
+<br><br>
+    <!-- Hidden Fields -->
+    <input type="hidden" name="event" value="drawer open">
+    <input type="hidden" name="timestamp" id="timestamp">
+    <input type="hidden" name="reason" id="reason" value="cash credit">
+
+    <div class="form-group">
+      <label style = 'color:aliceblue; background-color:orange; width:100px;text-align:center ; font-style:italic' >Product :</label> <br>
+      <br>
+      <input type="text" class="form-control" name="product" placeholder='Enter a Product'>
+    </div><br>
+
+    <div class="form-group">
+      <label style = 'color:aliceblue; background-color:orange; width:100px;text-align:center; font-style:italic'>Quantity :</label> <br>
+      <br>
+      <input type="number" class="form-control" name="quantity" placeholder='Enter a Quantity'> <br>
+      
+    </div>
+
+    <div class="form-group">
+      <label style = 'color:aliceblue; background-color:orange; width:100px;text-align:center; font-style:italic'>Amount :</label> <br>
+      <br>
+      <input type="number" class="form-control text-secondary" name="amount" placeholder='Enter a Amount'> <br>
+    </div>
+
+    <!-- Shift Button -->
+    <button type="button" class="btn btn-warning btn-block" onclick="setShiftReason()">
+      Shift Change
+    </button> <br>
+    <br>
+
+    <button type="submit" class="btn btn-primary btn-block">
+      Open Drawer
+    </button>
+
+    <button type="button" class="btn btn-secondary btn-block"> <a style='color:white;' href="/history"> Show Log History </a></button>
+
+
+  </form>
+</div>
+
+<script>
+    document.getElementById("timestamp").value = new Date().toISOString();
+
+  function setShiftReason() {
+      document.getElementById("reason").value = "shift change";
+      alert("Reason changed to Shift Change");
+  }
+
+  document.getElementById("drawerForm").addEventListener("submit", function() {
+      document.getElementById("timestamp").value = new Date().toISOString();
+  });
+</script>
+
+
+<div id="result"></div>
+
+<script>
+  // keep timestamp updated
+  document.getElementById("timestamp").value = new Date().toLocaleString()
+
+  let now = new Date();
+  let formatted = now.getFullYear() + "-" +
+        (now.getMonth()+1) + "-" +
+        now.getDate() + " " +
+        now.getHours() + ":" +
+        now.getMinutes() + ":" +
+        now.getSeconds();
+
+  document.getElementById("timestamp").value = formatted;
+
+  // Poll /status to show realtime alerts
+  async function pollStatus() {
+    try {
+      const res = await fetch('/status');
+      if (!res.ok) return;
+      const data = await res.json();
+      const banner = document.getElementById('alertBanner');
+      if (data.alert) {
+        banner.style.display = 'block';
+      } else {
+        banner.style.display = 'none';
+      }
+    } catch (e) {
+      // ignore errors
+    }
+  }
+
+  setInterval(pollStatus, 1000);
+  
+  // Detection control handlers
+  const startBtn = document.getElementById('startBtn');
+  const stopBtn = document.getElementById('stopBtn');
+  const detStatus = document.getElementById('detStatus');
+
+  async function startDetection() {
+    try {
+      const res = await fetch('/start_detection', { method: 'POST' });
+      const data = await res.json();
+      updateDetectionStatus();
+      if (data.status === 'started') alert('Detection started (pid: ' + data.pid + ')');
+    } catch (e) { alert('Start failed: ' + e); }
+  }
+
+  async function stopDetection() {
+    try {
+      const res = await fetch('/stop_detection', { method: 'POST' });
+      const data = await res.json();
+      updateDetectionStatus();
+      if (data.status === 'stopped') alert('Detection stopped');
+    } catch (e) { alert('Stop failed: ' + e); }
+  }
+
+  async function updateDetectionStatus() {
+    try {
+      const res = await fetch('/detection_status');
+      if (!res.ok) return;
+      const d = await res.json();
+      if (d.running) {
+        detStatus.innerText = 'Running (pid: ' + d.pid + ')';
+        detStatus.style.color = '#0f0';
+        startBtn.disabled = true;
+        stopBtn.disabled = false;
+      } else {
+        detStatus.innerText = 'Stopped';
+        detStatus.style.color = '#f88';
+        startBtn.disabled = false;
+        stopBtn.disabled = true;
+      }
+    } catch (e) {
+      detStatus.innerText = '';
+    }
+  }
+
+  startBtn.addEventListener('click', startDetection);
+  stopBtn.addEventListener('click', stopDetection);
+  updateDetectionStatus();
+  setInterval(updateDetectionStatus, 2000);
+</script>
+
+
+    
+</body>
+</html>
+
+
+
+
+
+
+
