@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>DealNow</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <div id="location-screen">
+    <div class="logo">
+      <h2>⚡ DealNow</h2>
+    </div>
+
+    <div class="location-content">
+      <div class="location-icon">📍</div>
+      <h1>Discover Deals Near You</h1>
+      <p>
+        Enable location to find exclusive offers and hidden discounts nearby.
+      </p>
+      <button id="enable-location-btn">Enable Location</button>
+      <small>🔒 Your location is only used to find nearby deals</small>
+    </div>
+  </div>
+
+  <div id="app-screen" style="display:none;">
+
+    <header>
+      <div class="left">
+        <h2>⚡ DealNow</h2>
+      </div>
+
+      <div class="center" id="user-location">
+        📍 Fetching location...
+      </div>
+
+      <div class="right">
+        <button id="profile-btn" class="header-btn profile-btn">👤 Profile</button>
+
+        <a href="shoplogin.html">
+          <button class="header-btn shop-btn">Register as Shop</button>
+        </a>
+      </div>
+    </header>
+
+    <div class="auth-box" id="auth-box">
+      <h2>Welcome</h2>
+      <input type="email" id="email" placeholder="Enter Email" />
+      <input type="password" id="password" placeholder="Enter Password" />
+
+      <button id="register-btn" class="auth-btn register">Register</button>
+      <button id="login-btn" class="auth-btn login">Login</button>
+    </div>
+
+    <section class="daily-deal" id="daily-deal">
+      <div>🎁 Daily Surprise Deal</div>
+      <p>Tap to reveal your exclusive offer!</p>
+    </section>
+
+    <section class="nearby-deals">
+
+      <div class="nearby-header">
+        <h3>Nearby Deals</h3>
+        <span id="deal-count">0 offers</span>
+      </div>
+
+      <div class="categories">
+        <button class="active" data-filter="all">✨ All</button>
+        <button data-filter="food">🍔 Food</button>
+        <button data-filter="fashion">👗 Fashion</button>
+        <button data-filter="salon">💇 Salon</button>
+        <button data-filter="grocery">🛒 Grocery</button>
+        <button data-filter="services">🛠 Services</button>
+      </div>
+
+      <div class="Sortby">
+        <label for="sort-select">Sort by:</label>
+
+        <select id="sort-select">
+          <option value="name">Name A → Z</option>
+          <option value="priceLow">Price Low → High</option>
+          <option value="priceHigh">Price High → Low</option>
+          <option value="expiry">Expiry Time</option>
+        </select>
+
+        <input type="text" id="search-input" placeholder="Search deals..." />
+      </div>
+
+      <div id="nearby-deals-container" class="nearby-grid"></div>
+
+    </section>
+
+  </div>
+
+  <div id="profile-modal" class="profile-modal" style="display:none;">
+    <div class="profile-content">
+      <span id="close-profile">&times;</span>
+      <h2>User Profile</h2>
+      <p><strong>Email:</strong> <span id="profile-email"></span></p>
+      <h3>POINTS: <span id="profile-points">0</span></h3>
+      <button id="logout-btn-profile">Logout</button>
+    </div>
+  </div>
+
+  <div id="deal-modal" class="deal-modal" style="display:none;">
+    <div class="deal-modal-content">
+      <span id="close-modal">&times;</span>
+      <h2 id="modal-title"></h2>
+      <div id="shop-info"></div>
+      <div id="modal-products"></div>
+    </div>
+  </div>
+
+  <script type="module" src="script.js"></script>
+  <script type="module" src="sort.js"></script>
+</body>
+
+</html>

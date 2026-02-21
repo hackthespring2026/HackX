@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Create Account | DealNow</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style2.css">
+</head>
+
+<body>
+
+  <div class="form-container">
+    <h2>⚡ DealNow</h2>
+    <p>Create your business account</p>
+
+
+    <form id="registerForm">
+
+      <input type="text" id="shopName" placeholder="Shop Name" required>
+
+      <select id="businessType" required>
+        <option value="">Select Business Type</option>
+        <option value="food">Food</option>
+        <option value="fashion">Fashion</option>
+        <option value="salon">Salon</option>
+        <option value="grocery">Grocery</option>
+        <option value="services">Services</option>
+        <option value="other">Other</option>
+      </select>
+
+      <input type="text" id="currentOffer" placeholder="Current Offer (e.g. 20% OFF)">
+
+      <input type="email" id="email" placeholder="Email Address" required>
+
+      <input type="tel" id="mobile" placeholder="Mobile Number" required>
+
+      <input type="text" id="identity" placeholder="GSTIN" required>
+
+      <textarea id="address" placeholder="Shop Address" required></textarea>
+
+      <input type="password" id="password" placeholder="Password" required>
+
+      <input type="password" id="confirmPassword" placeholder="Confirm Password" required>
+
+      <form id="registerForm">
+        <button type="submit">Create Account</button>
+      </form>
+
+      <div class="success-message" id="successMsg">
+        ✅ Account created successfully
+      </div>
+
+
+
+    </form>
+
+  </div>
+
+  <script src="register.js" type="module"></script>
+</body>
+
+</html>
