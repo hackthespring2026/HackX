@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PolicyAssist – Intelligence System</title>
+    <meta name="description"
+        content="AI-powered policy intelligence: grounded Q&A, compliance analysis, section summaries, document diff, and gap detection." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+
+    <!-- ── Sidebar ─────────────────────────────────────────── -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <div class="brand-icon">P</div>
+            <div>
+                <div class="brand-name">PolicyAssist</div>
+                <div class="brand-tag">Intelligence System</div>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <button class="nav-item active" data-tab="upload" id="nav-upload">
+                <span class="nav-icon">↑</span>
+                <span>Upload</span>
+            </button>
+            <button class="nav-item" data-tab="ask" id="nav-ask">
+                <span class="nav-icon">?</span>
+                <span>Ask a Question</span>
+            </button>
+            <button class="nav-item" data-tab="scenario" id="nav-scenario">
+                <span class="nav-icon">⚖</span>
+                <span>Compliance Check</span>
+            </button>
+            <button class="nav-item" data-tab="sections" id="nav-sections">
+                <span class="nav-icon">≡</span>
+                <span>Sections</span>
+            </button>
+
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="status-dot" id="apiStatusDot"></div>
+            <span id="apiStatusText">Checking…</span>
+        </div>
+    </aside>
+
+    <!-- ── Main content ────────────────────────────────────── -->
+    <main class="main" id="main">
+
+        <!-- ── Upload Tab ──────────────────────────────────── -->
+        <div class="tab-panel active" id="tab-upload">
+            <div class="page-header">
+                <h1>Upload Document</h1>
+                <p>Upload a PDF or TXT policy document. It will be parsed, indexed, and auto-analyzed.</p>
+            </div>
+
+            <div class="upload-zone" id="uploadZone">
+                <input type="file" id="fileInput" accept=".pdf,.txt" hidden />
+                <div class="upload-icon">📄</div>
+                <p class="upload-title">Drop your file here or <button class="link-btn" id="browseBtn">browse</button>
+                </p>
+                <p class="upload-sub">PDF or TXT · Max 20 MB</p>
+                <div class="upload-filename" id="uploadFilename"></div>
+            </div>
+
+            <button class="btn btn-primary btn-full" id="uploadBtn" disabled>
+                <span class="btn-label">Upload &amp; Analyze</span>
+                <span class="btn-loader hidden"></span>
+            </button>
+
+            <div id="uploadResult" class="result-card hidden"></div>
+
+            <!-- Upload stats chips -->
+            <div class="stats-row hidden" id="uploadStats">
+                <div class="stat-chip" id="statChunks"><span class="stat-val">—</span><span
+                        class="stat-label">Chunks</span></div>
+                <div class="stat-chip" id="statTables"><span class="stat-val">—</span><span
+                        class="stat-label">Tables</span></div>
+                <div class="stat-chip" id="statSections"><span class="stat-val">—</span><span
+                        class="stat-label">Sections</span></div>
+            </div>
+        </div>
+
+        <!-- ── Ask Tab ─────────────────────────────────────── -->
+        <div class="tab-panel" id="tab-ask">
+            <div class="page-header">
+                <h1>Ask a Question</h1>
+                <p>Grounded answers with confidence scoring, citations, and automatic gap detection.</p>
+            </div>
+
+            <div class="input-group">
+                <textarea id="questionInput" class="textarea" rows="3"
+                    placeholder="e.g. What is the maximum annual leave allowed?"></textarea>
+                <button class="btn btn-primary" id="askBtn">
+                    <span class="btn-label">Ask</span>
+                    <span class="btn-loader hidden"></span>
+                </button>
+            </div>
+
+            <div id="askResult" class="hidden">
+
+                <!-- Gap alert -->
+                <div class="gap-alert hidden" id="gapAlert">
+                    <strong>Policy Gap Detected</strong>
+                    <span id="gapSuggestion"></span>
+                </div>
+
+                <!-- Answer -->
+                <div class="answer-box" id="answerBox"></div>
+
+                <!-- Sources -->
+                <div id="sourcesWrap" class="hidden">
+                    <h3 class="section-title">📎 Sources</h3>
+                    <div id="sourcesList" class="sources-list"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Scenario / Compliance Tab ───────────────────── -->
+        <div class="tab-panel" id="tab-scenario">
+            <div class="page-header">
+                <h1>Compliance Check</h1>
+                <p>Describe a real or hypothetical workplace scenario. Get a policy-grounded compliance verdict.</p>
+            </div>
+
+            <div class="input-group">
+                <textarea id="scenarioInput" class="textarea" rows="4"
+                    placeholder="e.g. I was absent for 20 days without submitting a medical certificate. What happens?"></textarea>
+                <button class="btn btn-primary" id="scenarioBtn">
+                    <span class="btn-label">Analyze</span>
+                    <span class="btn-loader hidden"></span>
+                </button>
+            </div>
+
+            <div id="scenarioResult" class="hidden">
+                <div class="badges-row" id="scenarioBadges"></div>
+                <div class="gap-alert hidden" id="scenarioGapAlert">
+                    <strong>Policy Gap Detected</strong>
+                    <span id="scenarioGapSuggestion"></span>
+                </div>
+                <div class="answer-box verdict-box" id="scenarioOutcome"></div>
+                <div id="scenarioSourcesWrap" class="hidden">
+                    <h3 class="section-title">📎 Policy References</h3>
+                    <div id="scenarioSourcesList" class="sources-list"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Sections Tab ────────────────────────────────── -->
+        <div class="tab-panel" id="tab-sections">
+            <div class="page-header">
+                <h1>Document Sections</h1>
+                <p>Auto-detected sections and AI-generated summaries from all uploaded documents.</p>
+            </div>
+
+            <button class="btn btn-secondary" id="loadSectionsBtn">
+                <span class="btn-label">Load Sections</span>
+                <span class="btn-loader hidden"></span>
+            </button>
+
+            <div id="sectionsResult" class="hidden">
+                <div id="sectionsList" class="sections-grid"></div>
+            </div>
+
+            <div class="empty-state hidden" id="sectionsEmpty">
+                <div class="empty-icon">≡</div>
+                <p>No sections found. Upload a document first.</p>
+            </div>
+        </div>
+
+        <!-- ── Compare Tab ─────────────────────────────────── -->
+
+    </main>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
