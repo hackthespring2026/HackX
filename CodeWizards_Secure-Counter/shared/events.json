@@ -1,0 +1,35 @@
+[
+  {
+    "timestamp": "2026-02-21T05:00:05.000Z",
+    "category": "person",
+    "type": "person_enter",
+    "label": "Person Entered",
+    "person_detected": true,
+    "suspicious": false,
+    "confidence": 98,
+    "camera": "Camera 1",
+    "message": "Cashier badge-scanned entry"
+  },
+  {
+    "timestamp": "2026-02-21T05:01:10.000Z",
+    "category": "transaction",
+    "type": "theft",
+    "label": "Theft Detected",
+    "person_detected": true,
+    "suspicious": true,
+    "confidence": 99,
+    "camera": "Camera 2",
+    "message": "POS sale mismatch"
+  },
+  {
+    "timestamp": "2026-02-21T05:03:20.000Z",
+    "category": "person",
+    "type": "person_enter",
+    "label": "Person Entered",
+    "person_detected": true,
+    "suspicious": false,
+    "confidence": 94,
+    "camera": "Camera 1",
+    "message": "Customer entered store area"
+  }
+]

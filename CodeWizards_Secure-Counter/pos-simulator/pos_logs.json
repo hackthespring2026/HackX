@@ -1,0 +1,44 @@
+[
+  {
+    "timestamp": "2026-02-21T05:00:08.000Z",
+    "type": "amount_entered",
+    "item": "Powder",
+    "amount": 200.00,
+    "cashier": "Yash"
+  },
+  {
+    "timestamp": "2026-02-21T05:01:08.000Z",
+    "type": "drawer_open",
+    "item": null,
+    "amount": null,
+    "cashier": "Yash"
+  },
+  {
+    "timestamp": "2026-02-21T05:01:15.000Z",
+    "type": "cash_taken",
+    "item": "Powder",
+    "amount": 300.00,
+    "cashier": "Yash"
+  },
+  {
+    "timestamp": "2026-02-21T05:01:20.000Z",
+    "type": "giving_change",
+    "item": null,
+    "amount": 100.00,
+    "cashier": "Yash"
+  },
+  {
+    "timestamp": "2026-02-21T05:01:25.000Z",
+    "type": "change_not_given",
+    "item": null,
+    "amount": 100.00,
+    "cashier": "Yash"
+  },
+  {
+    "timestamp": "2026-02-21T05:01:30.000Z",
+    "type": "drawer_closed",
+    "item": null,
+    "amount": null,
+    "cashier": "Yash"
+  }
+]
