@@ -1,0 +1,7 @@
+ultralytics
+opencv-python
+mediapipe
+numpy
+flask-cors
+Flask-SQLAlchemy
+pymysql

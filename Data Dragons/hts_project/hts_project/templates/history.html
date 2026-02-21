@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Drawer Log History</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to right, #1e3c72, #2a5298);
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+        }
+
+        table {
+            margin: auto;
+            border-collapse: collapse;
+            width: 90%;
+            background-color: white;
+            color: black;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        th {
+            background-color: #2a5298;
+            color: white;
+            padding: 12px;
+        }
+
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        tr:hover {
+            background-color: #f2f2f2;
+        }
+
+        .back-btn {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #ff9800;
+            border: none;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .back-btn:hover {
+            background-color: #e68900;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Drawer Log History</h2>
+
+    <div style="max-width:900px; margin: 0 auto 24px; text-align:left;">
+        <h3 style="color: #fff;">Recent Alerts</h3>
+        <ul id="recentAlerts" style="list-style:none; padding:0; margin:0 0 12px;
+            background: rgba(255,255,255,0.08); border-radius:6px;">
+        </ul>
+    </div>
+
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Event</th>
+            <th>Reason</th>
+            <th>Product</th>
+            <th>Quantity</th>
+            <th>Amount</th>
+            <th>Timestamp</th>
+        </tr>
+
+        {% for log in logs %}
+        <tr>
+            <td>{{ log.id }}</td>
+            <td>{{ log.event }}</td>
+            <td>{{ log.reason }}</td>
+            <td>{{ log.product }}</td>
+            <td>{{ log.quantity }}</td>
+            <td>{{ log.amount }}</td>
+            <td>{{ log.timestamp }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <br>
+    <a href="/">
+        <button class="back-btn">Back to Dashboard</button>
+    </a>
+
+    <script>
+        async function loadAlerts(){
+            try{
+                const res = await fetch('/alerts');
+                if(!res.ok) return;
+                const list = await res.json();
+                const container = document.getElementById('recentAlerts');
+                container.innerHTML = '';
+                for(const a of list.slice(0,6)){
+                    const li = document.createElement('li');
+                    li.style.padding = '10px';
+                    li.style.borderBottom = '1px solid rgba(255,255,255,0.06)';
+                    li.style.color = '#fff';
+                    li.innerText = (a.ts?('['+a.ts+'] '):'') + (a.type||'') + ' - ' + JSON.stringify(a.details||{});
+                    container.appendChild(li);
+                }
+            }catch(e){ console.warn(e); }
+        }
+        loadAlerts();
+    </script>
+
+</body>
+</html>

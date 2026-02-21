@@ -1,0 +1,67 @@
+<!-- <!DOCTYPE html>
+<html>
+<head>
+  <title>Theft Alert Dashboard</title>
+  <style>
+    body { font-family: Arial; background: #111; color: #fff; text-align: center; }
+    .alert { color: red; font-size: 32px; margin-top: 100px; }
+    .ok { color: #00ff88; font-size: 24px; margin-top: 100px; }
+  </style>
+</head>
+<body>
+  <h1>Retail Theft Monitoring</h1>
+  <div id="status" class="ok">All clear</div>
+
+  <script>
+    async function pollAlert() {
+      const res = await fetch("http://127.0.0.1:5000/latest_alert");
+      const data = await res.json();
+
+      if (data.type) {
+        document.getElementById("status").innerHTML = "🚨 THEFT ALERT!";
+        document.getElementById("status").className = "alert";
+      } else {
+        document.getElementById("status").innerHTML = "All clear";
+        document.getElementById("status").className = "ok";
+      }
+    }
+
+    setInterval(pollAlert, 1000);
+  </script>
+</body>
+</html> -->
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Theft Alert Dashboard</title>
+  <style>
+    body { font-family: Arial; background: #0b0b0b; color: white; text-align: center; }
+    .alert { color: red; font-size: 36px; margin-top: 100px; }
+    .ok { color: #00ff88; font-size: 28px; margin-top: 100px; }
+  </style>
+</head>
+<body>
+  <h1>Retail Theft Monitoring</h1>
+  <div id="status" class="ok">All clear</div>
+
+  <script>
+    async function pollStatus() {
+      const res = await fetch("http://127.0.0.1:5000/status");
+      const data = await res.json();
+
+      const statusEl = document.getElementById("status");
+
+      if (data.alert) {
+        statusEl.innerText = "🚨 Suspicious activity found";
+        statusEl.className = "alert";
+      } else {
+        statusEl.innerText = "All clear";
+        statusEl.className = "ok";
+      }
+    }
+
+    setInterval(pollStatus, 1000); // poll every 1 second
+  </script>
+</body>
+</html>
