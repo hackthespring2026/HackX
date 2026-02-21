@@ -1,0 +1,29 @@
+# Environments
+venv/
+env/
+.env
+
+# Cache & Bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Databases
+*.sqlite3
+db.sqlite3
+
+# Heavy AI & Video Files
+*.pt
+*.mp4
+*.avi
+sentinel_buffers/
+yolov8n.pt
+yolov8n-pose.pt
+
+# Log files
+*.log
+
+# OS Generated
+.DS_Store
+Thumbs.db

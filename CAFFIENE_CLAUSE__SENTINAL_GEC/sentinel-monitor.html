@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sentinel GEC — AI Monitor Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap"
+        rel="stylesheet" />
+    <style>
+        :root {
+            --bg: #08090d;
+            --surface: #0f1117;
+            --card: #14161e;
+            --border: #1e2130;
+            --accent: #6c63ff;
+            --green: #22c55e;
+            --yellow: #eab308;
+            --red: #ef4444;
+            --cyan: #06b6d4;
+            --text: #e2e8f0;
+            --muted: #64748b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+        }
+
+        /* ── Header ── */
+        header {
+            background: linear-gradient(90deg, #0a0b10, #0f1117);
+            border-bottom: 1px solid var(--border);
+            padding: 14px 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo .badge {
+            background: var(--accent);
+            color: #fff;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 4px;
+            letter-spacing: 1px;
+        }
+
+        .logo h1 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .logo span {
+            color: var(--muted);
+            font-size: 13px;
+            margin-left: 6px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .live-dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: var(--green);
+            box-shadow: 0 0 8px var(--green);
+            animation: pulse 1.4s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1
+            }
+
+            50% {
+                opacity: .4
+            }
+        }
+
+        #clock {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 14px;
+            color: var(--muted);
+        }
+
+        /* ── Layout ── */
+        .grid {
+            display: grid;
+            grid-template-columns: 1.4fr 1fr 1fr;
+            gap: 16px;
+            padding: 20px 24px;
+        }
+
+        @media(max-width:1100px) {
+            .grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media(max-width:680px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ── Card ── */
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .card-title {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .8px;
+            color: var(--muted);
+        }
+
+        .tier-badge {
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 7px;
+            border-radius: 20px;
+            letter-spacing: .5px;
+        }
+
+        .tier1 {
+            background: #1e293b;
+            color: var(--cyan);
+        }
+
+        .tier2 {
+            background: #1a1f12;
+            color: var(--green);
+        }
+
+        .tier3 {
+            background: #1a1212;
+            color: var(--red);
+        }
+
+        /* ── Stats row ── */
+        .stats-row {
+            display: flex;
+            gap: 1px;
+            background: var(--border);
+        }
+
+        .stat {
+            flex: 1;
+            background: var(--card);
+            padding: 14px 12px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 26px;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-size: 10px;
+            color: var(--muted);
+            margin-top: 4px;
+            letter-spacing: .5px;
+        }
+
+        /* ── Drawer status ── */
+        .drawer-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 16px;
+            font-size: 13px;
+        }
+
+        .drawer-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+            background: var(--green);
+            transition: background .3s;
+        }
+
+        .drawer-indicator.open {
+            background: var(--red);
+            box-shadow: 0 0 10px var(--red);
+        }
+
+        #drawer-label {
+            font-weight: 500;
+        }
+
+        #drawer-since {
+            color: var(--muted);
+            font-size: 11px;
+            margin-left: auto;
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        /* ── Simulate buttons ── */
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding: 12px 16px;
+        }
+
+        .btn {
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all .2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-open {
+            background: #7f1d1d;
+            color: #fca5a5;
+        }
+
+        .btn-close {
+            background: #14532d;
+            color: #86efac;
+        }
+
+        .btn-nosale {
+            background: #1e1b4b;
+            color: #a5b4fc;
+        }
+
+        .btn-spike {
+            background: #78350f;
+            color: #fcd34d;
+        }
+
+        .btn:hover {
+            filter: brightness(1.25);
+            transform: translateY(-1px);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-icon {
+            font-size: 16px;
+        }
+
+        .btn-desc {
+            font-size: 10px;
+            font-weight: 400;
+            color: inherit;
+            opacity: .75;
+        }
+
+        /* ── Alert feed ── */
+        .alert-feed {
+            max-height: 380px;
+            overflow-y: auto;
+            padding: 10px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .alert-feed::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .alert-feed::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 2px;
+        }
+
+        .alert-card {
+            border-radius: 8px;
+            padding: 10px 12px;
+            border-left: 3px solid;
+            animation: slideIn .3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: none;
+            }
+        }
+
+        .alert-card.critical {
+            background: #1a0505;
+            border-color: var(--red);
+        }
+
+        .alert-card.warning {
+            background: #1a1305;
+            border-color: var(--yellow);
+        }
+
+        .alert-card.info {
+            background: #05101a;
+            border-color: var(--cyan);
+        }
+
+        .alert-card.ok {
+            background: #05140a;
+            border-color: var(--green);
+        }
+
+        .alert-top {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+
+        .alert-type {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: .5px;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .alert-card.critical .alert-type {
+            background: #7f1d1d;
+            color: #fca5a5;
+        }
+
+        .alert-card.warning .alert-type {
+            background: #78350f;
+            color: #fde68a;
+        }
+
+        .alert-card.info .alert-type {
+            background: #0c2c3d;
+            color: #7dd3fc;
+        }
+
+        .alert-card.ok .alert-type {
+            background: #14532d;
+            color: #86efac;
+        }
+
+        .alert-tier {
+            margin-left: auto;
+            font-size: 10px;
+            color: var(--muted);
+        }
+
+        .alert-rule {
+            font-size: 11px;
+            color: var(--text);
+            line-height: 1.4;
+        }
+
+        .alert-time {
+            font-size: 10px;
+            color: var(--muted);
+            margin-top: 4px;
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        .alert-chain {
+            font-size: 9px;
+            color: var(--accent);
+            font-family: 'Share Tech Mono', monospace;
+            margin-top: 2px;
+        }
+
+        .no-alerts {
+            text-align: center;
+            color: var(--muted);
+            font-size: 13px;
+            padding: 32px 16px;
+        }
+
+        /* ── Drawer timeline ── */
+        .timeline {
+            padding: 10px 14px;
+            max-height: 340px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .timeline::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .timeline::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 2px;
+        }
+
+        .tl-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 10px;
+            border-radius: 7px;
+            background: var(--surface);
+            font-size: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .tl-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .tl-dot.open {
+            background: var(--red);
+        }
+
+        .tl-dot.closed {
+            background: var(--green);
+        }
+
+        .tl-item.anomaly {
+            border-color: var(--red);
+            background: #1a0505;
+        }
+
+        .tl-meta {
+            margin-left: auto;
+            font-family: 'Share Tech Mono', monospace;
+            color: var(--muted);
+            font-size: 10px;
+        }
+
+        /* ── Tier indicators ── */
+        .tier-indicators {
+            display: flex;
+            gap: 8px;
+            padding: 10px 16px 14px;
+        }
+
+        .tier-pill {
+            flex: 1;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 8px;
+            text-align: center;
+        }
+
+        .tier-pill .icon {
+            font-size: 22px;
+        }
+
+        .tier-pill .name {
+            font-size: 10px;
+            color: var(--muted);
+            margin-top: 4px;
+            font-weight: 600;
+        }
+
+        .tier-pill .status {
+            font-size: 11px;
+            font-weight: 700;
+            margin-top: 2px;
+        }
+
+        .tier-pill.active .status {
+            color: var(--green);
+        }
+
+        .tier-pill.standby .status {
+            color: var(--yellow);
+        }
+
+        /* ── Footer ── */
+        footer {
+            text-align: center;
+            color: var(--muted);
+            font-size: 11px;
+            padding: 14px;
+            border-top: 1px solid var(--border);
+        }
+
+        /* ── Toast ── */
+        #toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px 18px;
+            font-size: 13px;
+            font-weight: 500;
+            box-shadow: 0 8px 30px #0008;
+            transition: all .3s;
+            opacity: 0;
+            transform: translateY(10px);
+            pointer-events: none;
+            max-width: 300px;
+            z-index: 9999;
+        }
+
+        #toast.show {
+            opacity: 1;
+            transform: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Header -->
+    <header>
+        <div class="logo">
+            <span class="badge">LIVE</span>
+            <h1>Sentinel GEC</h1>
+            <span>— AI Monitor Dashboard</span>
+        </div>
+        <div class="header-right">
+            <div class="live-dot"></div>
+            <div id="clock">--:--:--</div>
+        </div>
+    </header>
+
+    <!-- Stats Bar -->
+    <div class="stats-row">
+        <div class="stat">
+            <div class="stat-value" id="stat-total" style="color:var(--cyan)">0</div>
+            <div class="stat-label">TOTAL ALERTS</div>
+        </div>
+        <div class="stat">
+            <div class="stat-value" id="stat-critical" style="color:var(--red)">0</div>
+            <div class="stat-label">CRITICAL</div>
+        </div>
+        <div class="stat">
+            <div class="stat-value" id="stat-drawer" style="color:var(--yellow)">0</div>
+            <div class="stat-label">DRAWER ANOMALIES</div>
+        </div>
+        <div class="stat">
+            <div class="stat-value" id="stat-blockchain" style="color:var(--accent)">0</div>
+            <div class="stat-label">ON-CHAIN ANCHORED</div>
+        </div>
+    </div>
+
+    <!-- Main Grid -->
+    <div class="grid">
+
+        <!-- ── Col 1: Control Panel & Tier Overview ── -->
+        <div style="display:flex; flex-direction:column; gap:16px;">
+
+            <!-- Drawer Status -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">🗄️ Drawer Status</span>
+                    <span class="tier-badge tier1">TIER 1</span>
+                </div>
+                <div class="drawer-status">
+                    <div class="drawer-indicator" id="drawer-dot"></div>
+                    <span id="drawer-label">CLOSED</span>
+                    <span id="drawer-since">–</span>
+                </div>
+            </div>
+
+            <!-- Simulate Panel -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">🎮 Simulate Events</span>
+                    <span style="font-size:10px;color:var(--muted);">DEMO / JUDGE MODE</span>
+                </div>
+                <div class="btn-group">
+                    <button class="btn btn-open" id="btn-open" onclick="simulateDrawer('OPEN')">
+                        <span class="btn-icon">📂</span>
+                        <div>
+                            <div>Open Drawer (No Sale)</div>
+                            <div class="btn-desc">Triggers DRAWER_NO_SALE alert instantly</div>
+                        </div>
+                    </button>
+                    <button class="btn btn-close" id="btn-close" onclick="simulateDrawer('CLOSED')">
+                        <span class="btn-icon">📁</span>
+                        <div>
+                            <div>Close Drawer</div>
+                            <div class="btn-desc">Triggers PROLONGED_OPEN if > 15 seconds</div>
+                        </div>
+                    </button>
+                    <button class="btn btn-nosale" onclick="simulateNoSaleOpen()">
+                        <span class="btn-icon">🚫</span>
+                        <div>
+                            <div>Open → Wait → Close</div>
+                            <div class="btn-desc">Auto simulates 20s prolonged open</div>
+                        </div>
+                    </button>
+                    <button class="btn btn-spike" onclick="simulateSaleSpike()">
+                        <span class="btn-icon">💸</span>
+                        <div>
+                            <div>Cash Spike Sale</div>
+                            <div class="btn-desc">₹5000 sale vs ₹100 avg → MISMATCH</div>
+                        </div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 3-Tier Status -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">🏗️ System Tiers</span>
+                </div>
+                <div class="tier-indicators">
+                    <div class="tier-pill active">
+                        <div class="icon">📊</div>
+                        <div class="name">TIER 1</div>
+                        <div class="status">ACTIVE</div>
+                        <div style="font-size:9px;color:var(--muted);margin-top:2px;">POS Logic</div>
+                    </div>
+                    <div class="tier-pill standby" id="tier2-pill">
+                        <div class="icon">👁️</div>
+                        <div class="name">TIER 2</div>
+                        <div class="status">STANDBY</div>
+                        <div style="font-size:9px;color:var(--muted);margin-top:2px;">YOLO Vision</div>
+                    </div>
+                    <div class="tier-pill standby" id="tier3-pill">
+                        <div class="icon">📡</div>
+                        <div class="name">TIER 3</div>
+                        <div class="status">STANDBY</div>
+                        <div style="font-size:9px;color:var(--muted);margin-top:2px;">IoT Sensor</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ── Col 2: Alert Feed ── -->
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">🚨 Live Alert Feed</span>
+                <span class="tier-badge tier3">ALL TIERS</span>
+            </div>
+            <div class="alert-feed" id="alert-feed">
+                <div class="no-alerts" id="no-alerts-msg">No alerts yet. Monitoring...</div>
+            </div>
+        </div>
+
+        <!-- ── Col 3: Drawer Timeline ── -->
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">📋 Drawer Event Log</span>
+                <span class="tier-badge tier1">TIER 1</span>
+            </div>
+            <div class="timeline" id="drawer-timeline">
+                <div class="no-alerts">No drawer events yet.</div>
+            </div>
+        </div>
+
+    </div>
+
+    <footer>
+        Sentinel GEC &nbsp;|&nbsp; Camera-Agnostic 3-Tier Security &nbsp;|&nbsp;
+        Blockchain-Anchored Evidence &nbsp;|&nbsp; Powered by YOLO + Django + Sepolia
+    </footer>
+
+    <div id="toast"></div>
+
+    <script>
+        const API = 'http://localhost:8000/api';
+        let knownAlertIds = new Set();
+        let knownDrawerIds = new Set();
+        let criticalCount = 0, drawerAnomalyCount = 0, chainCount = 0;
+        const CRITICAL_TYPES = ['DRAWER_NO_SALE', 'PROLONGED_OPEN', 'MISMATCH', 'TRAJECTORY', 'POCKET', 'UNAUTH'];
+
+        // ── Clock ──────────────────────────────────────────────────────────────
+        function updateClock() {
+            document.getElementById('clock').textContent =
+                new Date().toLocaleTimeString('en-IN', { hour12: false });
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // ── Toast ──────────────────────────────────────────────────────────────
+        function showToast(msg, color = 'var(--accent)') {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.style.borderColor = color;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 3500);
+        }
+
+        // ── Alert helpers ──────────────────────────────────────────────────────
+        function alertClass(type) {
+            if (['DRAWER_NO_SALE', 'POCKET', 'TRAJECTORY', 'UNAUTH'].includes(type)) return 'critical';
+            if (['PROLONGED_OPEN', 'MISMATCH'].includes(type)) return 'warning';
+            return 'info';
+        }
+        function tierLabel(src) {
+            const map = { VISUAL: '🎥 Tier 2', POS_LOGIC: '📊 Tier 1', TRAJECTORY: '👁 Tier 2', IOT_SIM: '📡 Tier 3' };
+            return map[src] || '–';
+        }
+        function fmtTime(ts) {
+            return new Date(ts).toLocaleTimeString('en-IN', { hour12: false });
+        }
+
+        function renderAlert(alert) {
+            const cls = alertClass(alert.anomaly_type);
+            const feed = document.getElementById('alert-feed');
+            document.getElementById('no-alerts-msg')?.remove();
+
+            let detailsObj = null;
+            try {
+                if (alert.details) detailsObj = JSON.parse(alert.details);
+            } catch (e) { }
+
+            let reportHtml = '';
+            if (detailsObj && detailsObj.anomaly_report && Array.isArray(detailsObj.anomaly_report)) {
+                reportHtml = '<div style="margin-top:10px; display:flex; flex-direction:column; gap:6px; background:#050505; border:1px solid #1e2130; padding:10px; border-radius:6px; font-family:\'Share Tech Mono\', monospace; box-shadow: inset 0 0 10px rgba(0,0,0,0.5);">';
+                reportHtml += '<div style="font-size:11px; color:var(--accent); font-weight:bold; border-bottom:1px solid #1e2130; padding-bottom:6px; margin-bottom:4px; display:flex; justify-content:space-between;"><span>🧾 AI JSON REPORT</span><span style="color:var(--green)">VERIFIED</span></div>';
+
+                detailsObj.anomaly_report.forEach(rep => {
+                    let c = rep.type.includes('LOGICAL') ? 'var(--cyan)' : rep.type.includes('BEHAVIORAL') ? 'var(--yellow)' : 'var(--red)';
+                    reportHtml += `
+                        <div style="font-size:11px; line-height: 1.3;">
+                            <span style="color:${c}; font-weight:bold;">[${rep.type}]</span>
+                            <span style="color:var(--text); margin-left:4px;">${rep.description}</span>
+                            <div style="color:var(--muted); font-size:9px; margin-top:2px;">${rep.timestamp} | Ground Truth: <span style="color:var(--red)">${rep.ground_truth_label}</span></div>
+                        </div>
+                    `;
+                });
+                reportHtml += '</div>';
+            }
+
+            const card = document.createElement('div');
+            card.className = `alert-card ${cls}`;
+            card.innerHTML = `
+      <div class="alert-top">
+        <span class="alert-type">${alert.anomaly_type}</span>
+        <span class="alert-tier">${tierLabel(alert.tier_source)}</span>
+      </div>
+      <div class="alert-rule">${alert.rule_violated || '—'}</div>
+      <div class="alert-time">${fmtTime(alert.timestamp)}</div>
+      ${alert.blockchain_tx
+                    ? `<div class="alert-chain">⛓ ${alert.blockchain_tx.slice(0, 22)}…</div>`
+                    : ''}
+      ${reportHtml}
+    `;
+            feed.insertBefore(card, feed.firstChild);
+
+            // Stats
+            document.getElementById('stat-total').textContent = knownAlertIds.size;
+            if (cls === 'critical' || cls === 'warning') {
+                criticalCount++;
+                document.getElementById('stat-critical').textContent = criticalCount;
+            }
+            if (alert.blockchain_tx) {
+                chainCount++;
+                document.getElementById('stat-blockchain').textContent = chainCount;
+            }
+        }
+
+        // ── Drawer event helpers ───────────────────────────────────────────────
+        function renderDrawerEvent(ev) {
+            const timeline = document.getElementById('drawer-timeline');
+            timeline.querySelector('.no-alerts')?.remove();
+
+            const item = document.createElement('div');
+            item.className = `tl-item${ev.anomaly_triggered ? ' anomaly' : ''}`;
+            const dur = ev.duration_seconds != null ? `${ev.duration_seconds.toFixed(1)}s` : '';
+            item.innerHTML = `
+      <div class="tl-dot ${ev.status.toLowerCase()}"></div>
+      <div>
+        <strong>${ev.status}</strong>
+        ${ev.anomaly_triggered ? ' ⚠️' : ''}
+        ${ev.anomaly_reason ? `<div style="font-size:10px;color:var(--red);margin-top:2px;">${ev.anomaly_reason}</div>` : ''}
+      </div>
+      <div class="tl-meta">${dur ? dur + ' · ' : ''}${fmtTime(ev.timestamp)}</div>
+    `;
+            timeline.insertBefore(item, timeline.firstChild);
+            updateDrawerStatus();
+        }
+
+        function updateDrawerStatus() {
+            fetch(`${API}/drawer-events/stats/`)
+                .then(r => r.json())
+                .then(s => {
+                    const dot = document.getElementById('drawer-dot');
+                    const label = document.getElementById('drawer-label');
+                    const since = document.getElementById('drawer-since');
+                    if (s.currently_open) {
+                        dot.classList.add('open');
+                        label.textContent = 'OPEN';
+                        label.style.color = 'var(--red)';
+                        since.textContent = s.open_since ? 'since ' + fmtTime(s.open_since) : '';
+                    } else {
+                        dot.classList.remove('open');
+                        label.textContent = 'CLOSED';
+                        label.style.color = 'var(--green)';
+                        since.textContent = '';
+                    }
+                    document.getElementById('stat-drawer').textContent = s.total_anomalies;
+                });
+        }
+
+        // ── Polling ────────────────────────────────────────────────────────────
+        async function pollAlerts() {
+            try {
+                const r = await fetch(`${API}/alerts/?limit=50`);
+                const data = await r.json();
+                const list = Array.isArray(data) ? data : (data.results || []);
+                list.forEach(a => {
+                    if (!knownAlertIds.has(a.id)) {
+                        knownAlertIds.add(a.id);
+                        renderAlert(a);
+                        if (CRITICAL_TYPES.includes(a.anomaly_type)) {
+                            showToast(`🚨 ${a.anomaly_type}: ${(a.rule_violated || '').slice(0, 60)}`, 'var(--red)');
+                        }
+                    }
+                });
+            } catch { /* offline – silent */ }
+        }
+
+        async function pollDrawerEvents() {
+            try {
+                const r = await fetch(`${API}/drawer-events/?limit=30`);
+                const data = await r.json();
+                const list = Array.isArray(data) ? data : (data.results || []);
+                list.forEach(ev => {
+                    if (!knownDrawerIds.has(ev.id)) {
+                        knownDrawerIds.add(ev.id);
+                        renderDrawerEvent(ev);
+                    }
+                });
+            } catch { /* offline */ }
+        }
+
+        setInterval(pollAlerts, 3000);
+        setInterval(pollDrawerEvents, 3000);
+        pollAlerts();
+        pollDrawerEvents();
+        updateDrawerStatus();
+
+        // ── Simulate: Drawer OPEN / CLOSED ────────────────────────────────────
+        async function simulateDrawer(status) {
+            try {
+                const r = await fetch(`${API}/drawer-events/`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status })
+                });
+                const data = await r.json();
+                showToast(
+                    status === 'OPEN'
+                        ? '📂 Drawer opened — monitoring for anomalies…'
+                        : '📁 Drawer closed — checking duration…',
+                    status === 'OPEN' ? 'var(--yellow)' : 'var(--green)'
+                );
+                // Immediately reflect in timeline
+                if (!knownDrawerIds.has(data.id)) {
+                    knownDrawerIds.add(data.id);
+                    renderDrawerEvent(data);
+                }
+            } catch (e) {
+                showToast('❌ Backend offline — check Django server', 'var(--red)');
+            }
+        }
+
+        // ── Simulate: Prolonged Open (auto 20s) ───────────────────────────────
+        async function simulateNoSaleOpen() {
+            showToast('📂 Opening drawer… closing in 20s to trigger PROLONGED_OPEN', 'var(--yellow)');
+            await simulateDrawer('OPEN');
+            setTimeout(async () => {
+                await simulateDrawer('CLOSED');
+            }, 20000);
+        }
+
+        // ── Simulate: Cash Spike (MISMATCH) ───────────────────────────────────
+        async function simulateSaleSpike() {
+            // First plant 3 small sales to build an average
+            const smallSales = [100, 120, 90];
+            for (let i = 0; i < smallSales.length; i++) {
+                await fetch(`${API}/pos-logs/`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        transaction_id: `DEMO-SMALL-${Date.now()}-${i}`,
+                        event_type: 'SALE', amount: smallSales[i], payment_mode: 'CASH'
+                    })
+                });
+                await new Promise(r => setTimeout(r, 300));
+            }
+            // Now fire the spike
+            const r = await fetch(`${API}/pos-logs/`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    transaction_id: `DEMO-SPIKE-${Date.now()}`,
+                    event_type: 'SALE', amount: 5000, payment_mode: 'CASH'
+                })
+            });
+            showToast('💸 ₹5000 spike sale logged — watch for MISMATCH alert!', 'var(--yellow)');
+        }
+    </script>
+</body>
+
+</html>

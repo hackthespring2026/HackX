@@ -1,0 +1,2669 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PetPooja SecureOps — Admin Intelligence Dashboard</title>
+
+  <!-- Cesium JS -->
+  <script src="https://cesium.com/downloads/cesiumjs/releases/1.111/Build/Cesium/Cesium.js"></script>
+  <link href="https://cesium.com/downloads/cesiumjs/releases/1.111/Build/Cesium/Cesium.css" rel="stylesheet">
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet">
+
+  <style>
+    :root {
+      --navy: #0D1B2A;
+      --navy-2: #1E293B;
+      --navy-3: #243447;
+      --blue: #3B82F6;
+      --blue-dim: #1D4ED8;
+      --blue-glow: rgba(59, 130, 246, 0.18);
+      --cyan: #06B6D4;
+      --red: #EF4444;
+      --red-glow: rgba(239, 68, 68, 0.2);
+      --amber: #F59E0B;
+      --green: #10B981;
+      --slate: #334155;
+      --slate-dim: #1E2D3D;
+      --text: #E2E8F0;
+      --text-dim: #64748B;
+      --text-muted: #475569;
+      --border: rgba(59, 130, 246, 0.15);
+      --border-dim: rgba(255, 255, 255, 0.06);
+      --mono: 'Space Mono', monospace;
+      --sans: 'DM Sans', sans-serif;
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html,
+    body {
+      height: 100%;
+      background: var(--navy);
+      color: var(--text);
+      font-family: var(--sans);
+      overflow: hidden;
+    }
+
+    /* ── SCANLINE OVERLAY ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(0deg,
+          transparent,
+          transparent 2px,
+          rgba(0, 0, 0, 0.04) 2px,
+          rgba(0, 0, 0, 0.04) 4px);
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    /* ── HEADER ── */
+    header {
+      height: 56px;
+      background: var(--navy-2);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      flex-shrink: 0;
+      position: relative;
+      z-index: 100;
+    }
+
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-icon {
+      width: 32px;
+      height: 32px;
+      background: var(--blue);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+
+    .brand-name {
+      font-family: var(--mono);
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: 1px;
+    }
+
+    .brand-sub {
+      font-size: 10px;
+      color: var(--text-dim);
+      font-family: var(--mono);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .header-center {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .threat-level {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      font-size: 11px;
+      font-family: var(--mono);
+      letter-spacing: 1px;
+    }
+
+    .threat-level.low {
+      border-color: rgba(16, 185, 129, 0.3);
+      color: var(--green);
+    }
+
+    .threat-level.med {
+      border-color: rgba(245, 158, 11, 0.3);
+      color: var(--amber);
+    }
+
+    .threat-level.high {
+      border-color: rgba(239, 68, 68, 0.4);
+      color: var(--red);
+      animation: threat-pulse 1.5s infinite;
+    }
+
+    @keyframes threat-pulse {
+
+      0%,
+      100% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.3);
+      }
+
+      50% {
+        box-shadow: 0 0 0 6px rgba(239, 68, 68, 0);
+      }
+    }
+
+    .tl-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: currentColor;
+      animation: blink 1.2s infinite;
+    }
+
+    @keyframes blink {
+
+      0%,
+      100% {
+        opacity: 1
+      }
+
+      50% {
+        opacity: 0.3
+      }
+    }
+
+    .header-stats {
+      display: flex;
+      gap: 16px;
+    }
+
+    .hstat {
+      text-align: center;
+    }
+
+    .hstat .val {
+      font-family: var(--mono);
+      font-size: 16px;
+      font-weight: 700;
+      line-height: 1;
+      color: var(--blue);
+    }
+
+    .hstat .lbl {
+      font-size: 9px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    #live-clock {
+      font-family: var(--mono);
+      font-size: 14px;
+      color: var(--text-dim);
+      letter-spacing: 2px;
+    }
+
+    .admin-badge {
+      background: var(--blue);
+      color: white;
+      border-radius: 6px;
+      padding: 3px 10px;
+      font-size: 11px;
+      font-family: var(--mono);
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+
+    .store-tag {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-dim);
+      letter-spacing: 1px;
+    }
+
+    /* ── LAYOUT ── */
+    .layout {
+      display: grid;
+      grid-template-columns: 300px 1fr 340px;
+      grid-template-rows: calc(100vh - 56px);
+      height: calc(100vh - 56px);
+      overflow: hidden;
+    }
+
+    /* ── LEFT PANEL ── */
+    .left-panel {
+      background: var(--navy-2);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .panel-label {
+      padding: 12px 16px;
+      font-size: 9px;
+      font-family: var(--mono);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      border-bottom: 1px solid var(--border-dim);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* KPI Cards */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1px;
+      background: var(--border-dim);
+      flex-shrink: 0;
+    }
+
+    .kpi-card {
+      background: var(--navy-2);
+      padding: 14px 16px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .kpi-card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+    }
+
+    .kpi-card.blue::after {
+      background: var(--blue);
+    }
+
+    .kpi-card.red::after {
+      background: var(--red);
+    }
+
+    .kpi-card.green::after {
+      background: var(--green);
+    }
+
+    .kpi-card.amber::after {
+      background: var(--amber);
+    }
+
+    .kpi-value {
+      font-family: var(--mono);
+      font-size: 24px;
+      font-weight: 700;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .kpi-card.blue .kpi-value {
+      color: var(--blue);
+    }
+
+    .kpi-card.red .kpi-value {
+      color: var(--red);
+    }
+
+    .kpi-card.green .kpi-value {
+      color: var(--green);
+    }
+
+    .kpi-card.amber .kpi-value {
+      color: var(--amber);
+    }
+
+    .kpi-label {
+      font-size: 10px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .kpi-delta {
+      font-size: 10px;
+      font-family: var(--mono);
+      margin-top: 3px;
+    }
+
+    /* AI Status */
+    .ai-status {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border-dim);
+      flex-shrink: 0;
+    }
+
+    .ai-model-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .ai-model-name {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--cyan);
+      font-family: var(--mono);
+    }
+
+    .ai-status-dot {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 10px;
+      color: var(--green);
+      font-family: var(--mono);
+    }
+
+    .dot-green {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.5);
+      animation: gpulse 2s infinite;
+    }
+
+    @keyframes gpulse {
+      0% {
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.5);
+      }
+
+      70% {
+        box-shadow: 0 0 0 6px rgba(16, 185, 129, 0);
+      }
+
+      100% {
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+      }
+    }
+
+    .ai-metrics {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .ai-metric {
+      background: var(--slate-dim);
+      border-radius: 6px;
+      padding: 7px 8px;
+      text-align: center;
+    }
+
+    .ai-metric .mv {
+      font-family: var(--mono);
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--cyan);
+    }
+
+    .ai-metric .ml {
+      font-size: 9px;
+      color: var(--text-dim);
+      letter-spacing: 0.5px;
+    }
+
+    .confidence-bar {
+      height: 3px;
+      background: var(--slate);
+      border-radius: 2px;
+      overflow: hidden;
+      margin-top: 3px;
+    }
+
+    .confidence-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--blue), var(--cyan));
+      border-radius: 2px;
+      transition: width 0.8s ease;
+    }
+
+    /* Station List */
+    .station-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px;
+    }
+
+    .station-list::-webkit-scrollbar {
+      width: 3px;
+    }
+
+    .station-list::-webkit-scrollbar-thumb {
+      background: var(--slate);
+      border-radius: 2px;
+    }
+
+    .station-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-bottom: 4px;
+      border: 1px solid transparent;
+      transition: all 0.15s;
+      position: relative;
+    }
+
+    .station-item:hover {
+      background: rgba(59, 130, 246, 0.06);
+      border-color: var(--border);
+    }
+
+    .station-item.active {
+      background: rgba(59, 130, 246, 0.1);
+      border-color: rgba(59, 130, 246, 0.3);
+    }
+
+    .station-indicator {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .station-indicator.ok {
+      background: var(--green);
+    }
+
+    .station-indicator.alert {
+      background: var(--red);
+      animation: blink 0.8s infinite;
+    }
+
+    .station-indicator.warn {
+      background: var(--amber);
+    }
+
+    .station-info {
+      flex: 1;
+    }
+
+    .station-name {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .station-meta {
+      font-size: 10px;
+      color: var(--text-dim);
+      font-family: var(--mono);
+    }
+
+    .station-badge {
+      font-size: 9px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: var(--mono);
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    .station-badge.ok {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--green);
+    }
+
+    .station-badge.alert {
+      background: rgba(239, 68, 68, 0.15);
+      color: var(--red);
+    }
+
+    .station-badge.warn {
+      background: rgba(245, 158, 11, 0.15);
+      color: var(--amber);
+    }
+
+    /* ── CENTER PANEL ── */
+    .center-panel {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: var(--navy);
+    }
+
+    /* Video Feed */
+    .video-section {
+      flex-shrink: 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .video-header {
+      padding: 8px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--navy-2);
+    }
+
+    .video-title {
+      font-size: 11px;
+      font-family: var(--mono);
+      letter-spacing: 1.5px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+    }
+
+    .video-controls {
+      display: flex;
+      gap: 8px;
+    }
+
+    .vctrl {
+      background: var(--slate-dim);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 4px 10px;
+      font-size: 11px;
+      font-family: var(--mono);
+      color: var(--text-dim);
+      cursor: pointer;
+      transition: all 0.15s;
+      letter-spacing: 0.5px;
+    }
+
+    .vctrl:hover {
+      background: var(--blue);
+      color: white;
+      border-color: var(--blue);
+    }
+
+    .vctrl.active {
+      background: var(--red);
+      color: white;
+      border-color: var(--red);
+    }
+
+    .video-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2px;
+      background: #000;
+      height: 280px;
+    }
+
+    .video-feed {
+      position: relative;
+      background: #060D16;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .feed-label {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 1px;
+      color: rgba(255, 255, 255, 0.6);
+      background: rgba(0, 0, 0, 0.5);
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    .feed-time {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      font-family: var(--mono);
+      font-size: 10px;
+      color: rgba(255, 255, 255, 0.6);
+      background: rgba(0, 0, 0, 0.5);
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    .feed-status {
+      position: absolute;
+      bottom: 8px;
+      left: 8px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-family: var(--mono);
+      font-size: 10px;
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    .feed-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+    }
+
+    /* Animated camera visualization */
+    .camera-canvas {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Alert overlay on feed */
+    .feed-alert-overlay {
+      position: absolute;
+      inset: 0;
+      border: 2px solid var(--red);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.3s;
+      box-shadow: inset 0 0 20px rgba(239, 68, 68, 0.3);
+    }
+
+    .feed-alert-overlay.visible {
+      opacity: 1;
+      animation: alertBorder 0.5s infinite;
+    }
+
+    @keyframes alertBorder {
+
+      0%,
+      100% {
+        border-color: var(--red);
+      }
+
+      50% {
+        border-color: rgba(239, 68, 68, 0.4);
+      }
+    }
+
+    /* Detection box */
+    .det-box {
+      position: absolute;
+      border: 2px solid var(--red);
+      border-radius: 3px;
+      background: rgba(239, 68, 68, 0.05);
+      pointer-events: none;
+      display: none;
+    }
+
+    .det-box-label {
+      position: absolute;
+      top: -20px;
+      left: 0;
+      background: var(--red);
+      color: white;
+      font-family: var(--mono);
+      font-size: 9px;
+      padding: 2px 6px;
+      border-radius: 3px;
+      white-space: nowrap;
+    }
+
+    /* ── CESIUM SECTION ── */
+    .cesium-section {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .cesium-header {
+      padding: 8px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--navy-2);
+      border-top: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .cesium-title {
+      font-size: 11px;
+      font-family: var(--mono);
+      letter-spacing: 1.5px;
+      color: var(--cyan);
+      text-transform: uppercase;
+    }
+
+    .cesium-controls {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .cesium-toggle {
+      background: rgba(6, 182, 212, 0.1);
+      border: 1px solid rgba(6, 182, 212, 0.3);
+      border-radius: 5px;
+      padding: 4px 10px;
+      font-size: 11px;
+      font-family: var(--mono);
+      color: var(--cyan);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .cesium-toggle:hover,
+    .cesium-toggle.active {
+      background: var(--cyan);
+      color: var(--navy);
+      border-color: var(--cyan);
+    }
+
+    #cesiumContainer {
+      flex: 1;
+      position: relative;
+      background: #000510;
+      overflow: hidden;
+    }
+
+    /* Cesium fallback visualization (when no Cesium token) */
+    .cesium-fallback {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      background: radial-gradient(ellipse at center, #0A1628 0%, #020810 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .cesium-3d-scene {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      inset: 0;
+    }
+
+    .drawer-status-overlay {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      background: rgba(13, 27, 42, 0.85);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-family: var(--mono);
+      font-size: 11px;
+      backdrop-filter: blur(4px);
+    }
+
+    .drawer-status-overlay .ds-title {
+      color: var(--cyan);
+      font-size: 9px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .drawer-status-overlay .ds-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      color: var(--text-dim);
+      font-size: 10px;
+      margin-bottom: 3px;
+    }
+
+    .drawer-status-overlay .ds-val {
+      font-weight: 700;
+      font-size: 11px;
+    }
+
+    .ds-val.open {
+      color: var(--red);
+    }
+
+    .ds-val.closed {
+      color: var(--green);
+    }
+
+    .ds-val.auth {
+      color: var(--blue);
+    }
+
+    .ds-val.unauth {
+      color: var(--red);
+    }
+
+    .hand-track-overlay {
+      position: absolute;
+      bottom: 12px;
+      right: 12px;
+      background: rgba(13, 27, 42, 0.85);
+      border: 1px solid rgba(6, 182, 212, 0.3);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-family: var(--mono);
+      font-size: 11px;
+      backdrop-filter: blur(4px);
+      min-width: 140px;
+    }
+
+    .hand-track-overlay .ht-title {
+      color: var(--cyan);
+      font-size: 9px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .coord-row {
+      display: flex;
+      justify-content: space-between;
+      color: var(--text-dim);
+      font-size: 10px;
+      margin-bottom: 2px;
+    }
+
+    .coord-val {
+      color: var(--cyan);
+    }
+
+    /* ── RIGHT PANEL — ALERTS TABLE ── */
+    .right-panel {
+      background: var(--navy-2);
+      border-left: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .alerts-header {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border-dim);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    .alerts-title {
+      font-size: 12px;
+      font-family: var(--mono);
+      letter-spacing: 1px;
+      color: var(--text);
+    }
+
+    .alert-count-badge {
+      background: var(--red);
+      color: white;
+      border-radius: 10px;
+      padding: 2px 8px;
+      font-size: 11px;
+      font-family: var(--mono);
+      font-weight: 700;
+      animation: blink 1.5s infinite;
+    }
+
+    /* Filter pills */
+    .filter-row {
+      display: flex;
+      gap: 6px;
+      padding: 8px 16px;
+      border-bottom: 1px solid var(--border-dim);
+      flex-shrink: 0;
+      flex-wrap: wrap;
+    }
+
+    .filter-pill {
+      padding: 3px 10px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      background: transparent;
+      font-size: 10px;
+      font-family: var(--mono);
+      color: var(--text-dim);
+      cursor: pointer;
+      transition: all 0.15s;
+      letter-spacing: 0.5px;
+    }
+
+    .filter-pill:hover {
+      border-color: var(--blue);
+      color: var(--blue);
+    }
+
+    .filter-pill.active {
+      background: var(--blue);
+      color: white;
+      border-color: var(--blue);
+    }
+
+    .alerts-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px;
+    }
+
+    .alerts-list::-webkit-scrollbar {
+      width: 3px;
+    }
+
+    .alerts-list::-webkit-scrollbar-thumb {
+      background: var(--slate);
+      border-radius: 2px;
+    }
+
+    .alert-card {
+      background: var(--navy);
+      border: 1px solid var(--border-dim);
+      border-radius: 10px;
+      margin-bottom: 8px;
+      overflow: hidden;
+      animation: alertIn 0.3s ease;
+      transition: border-color 0.2s;
+    }
+
+    @keyframes alertIn {
+      from {
+        transform: translateY(-8px);
+        opacity: 0;
+      }
+
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .alert-card:hover {
+      border-color: var(--border);
+    }
+
+    .alert-card.critical {
+      border-left: 3px solid var(--red);
+    }
+
+    .alert-card.warn {
+      border-left: 3px solid var(--amber);
+    }
+
+    .alert-card.info {
+      border-left: 3px solid var(--blue);
+    }
+
+    .alert-card-header {
+      padding: 10px 12px 6px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .alert-type-tag {
+      font-size: 9px;
+      font-family: var(--mono);
+      font-weight: 700;
+      letter-spacing: 1px;
+      padding: 2px 7px;
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
+
+    .alert-type-tag.critical {
+      background: rgba(239, 68, 68, 0.15);
+      color: var(--red);
+    }
+
+    .alert-type-tag.warn {
+      background: rgba(245, 158, 11, 0.15);
+      color: var(--amber);
+    }
+
+    .alert-type-tag.info {
+      background: rgba(59, 130, 246, 0.15);
+      color: var(--blue);
+    }
+
+    .alert-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text);
+      flex: 1;
+      line-height: 1.3;
+    }
+
+    .alert-body {
+      padding: 0 12px 8px;
+    }
+
+    .alert-desc {
+      font-size: 11px;
+      color: var(--text-dim);
+      line-height: 1.5;
+      margin-bottom: 8px;
+    }
+
+    .alert-meta {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
+    }
+
+    .alert-meta-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 10px;
+      color: var(--text-dim);
+      font-family: var(--mono);
+    }
+
+    .alert-meta-item .mi-label {
+      color: var(--text-muted);
+    }
+
+    .alert-conf {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+
+    .alert-conf-label {
+      font-size: 10px;
+      color: var(--text-dim);
+      font-family: var(--mono);
+    }
+
+    .conf-bar {
+      flex: 1;
+      height: 4px;
+      background: var(--slate);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .conf-fill {
+      height: 100%;
+      border-radius: 2px;
+    }
+
+    .conf-fill.high {
+      background: var(--red);
+    }
+
+    .conf-fill.med {
+      background: var(--amber);
+    }
+
+    .conf-fill.low {
+      background: var(--blue);
+    }
+
+    .conf-pct {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--text-dim);
+      min-width: 32px;
+      text-align: right;
+    }
+
+    .alert-actions {
+      display: flex;
+      gap: 6px;
+      padding: 8px 12px;
+      border-top: 1px solid var(--border-dim);
+      background: rgba(0, 0, 0, 0.2);
+    }
+
+    .aa-btn {
+      flex: 1;
+      padding: 7px 8px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: transparent;
+      font-size: 10px;
+      font-family: var(--mono);
+      color: var(--text-dim);
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s;
+      letter-spacing: 0.5px;
+    }
+
+    .aa-btn:hover {
+      border-color: var(--blue);
+      color: var(--blue);
+    }
+
+    .aa-btn.blockchain {
+      border-color: rgba(6, 182, 212, 0.4);
+      color: var(--cyan);
+    }
+
+    .aa-btn.blockchain:hover {
+      background: rgba(6, 182, 212, 0.1);
+      border-color: var(--cyan);
+    }
+
+    .aa-btn.dismiss:hover {
+      border-color: var(--green);
+      color: var(--green);
+    }
+
+    .aa-btn.escalate {
+      border-color: rgba(239, 68, 68, 0.4);
+      color: var(--red);
+    }
+
+    .aa-btn.escalate:hover {
+      background: rgba(239, 68, 68, 0.1);
+    }
+
+    /* Blockchain modal */
+    .bc-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(8px);
+      z-index: 500;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .bc-modal.open {
+      display: flex;
+    }
+
+    .bc-inner {
+      background: var(--navy-2);
+      border: 1px solid rgba(6, 182, 212, 0.3);
+      border-radius: 16px;
+      padding: 28px;
+      width: 460px;
+      box-shadow: 0 0 60px rgba(6, 182, 212, 0.1);
+      animation: bcIn 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    @keyframes bcIn {
+      from {
+        transform: scale(0.92);
+        opacity: 0;
+      }
+
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    .bc-inner h2 {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--cyan);
+      margin-bottom: 4px;
+      font-family: var(--mono);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .bc-sub {
+      font-size: 12px;
+      color: var(--text-dim);
+      margin-bottom: 20px;
+    }
+
+    .bc-hash-display {
+      background: var(--navy);
+      border: 1px solid rgba(6, 182, 212, 0.2);
+      border-radius: 8px;
+      padding: 14px;
+      margin-bottom: 16px;
+      font-family: var(--mono);
+    }
+
+    .bc-hash-label {
+      font-size: 9px;
+      color: var(--text-dim);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .bc-hash-val {
+      font-size: 12px;
+      color: var(--cyan);
+      word-break: break-all;
+      line-height: 1.5;
+    }
+
+    .bc-rows {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .bc-row {
+      background: var(--navy);
+      border-radius: 6px;
+      padding: 10px 12px;
+    }
+
+    .bc-row-label {
+      font-size: 9px;
+      font-family: var(--mono);
+      color: var(--text-dim);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .bc-row-val {
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .bc-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      font-size: 12px;
+      font-family: var(--mono);
+    }
+
+    .bc-status.pending {
+      background: rgba(245, 158, 11, 0.1);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      color: var(--amber);
+    }
+
+    .bc-status.confirmed {
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: var(--green);
+    }
+
+    .bc-progress {
+      height: 4px;
+      background: var(--slate);
+      border-radius: 2px;
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+
+    .bc-progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--cyan), var(--blue));
+      border-radius: 2px;
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    .bc-close {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-dim);
+      font-family: var(--mono);
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .bc-close:hover {
+      background: var(--slate);
+      color: var(--text);
+    }
+
+    /* Timeline */
+    .timeline-section {
+      border-top: 1px solid var(--border-dim);
+      padding: 12px;
+      flex-shrink: 0;
+    }
+
+    .timeline-label {
+      font-size: 9px;
+      font-family: var(--mono);
+      letter-spacing: 2px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .timeline-track {
+      position: relative;
+      height: 32px;
+      background: var(--navy);
+      border-radius: 6px;
+      overflow: hidden;
+      border: 1px solid var(--border-dim);
+    }
+
+    .timeline-event {
+      position: absolute;
+      top: 4px;
+      bottom: 4px;
+      width: 6px;
+      border-radius: 3px;
+      cursor: pointer;
+      transition: transform 0.1s;
+    }
+
+    .timeline-event:hover {
+      transform: scaleY(1.3);
+    }
+
+    .timeline-event.cash {
+      background: var(--blue);
+    }
+
+    .timeline-event.alert {
+      background: var(--red);
+    }
+
+    .timeline-event.nosale {
+      background: var(--amber);
+    }
+
+    .timeline-now {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: var(--cyan);
+      right: 8px;
+    }
+
+    /* Toast */
+    .toast-zone {
+      position: fixed;
+      top: 66px;
+      right: 16px;
+      z-index: 400;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .toast-card {
+      background: var(--navy-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 16px;
+      min-width: 260px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 12px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+      animation: toastSlide 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+      font-family: var(--mono);
+    }
+
+    @keyframes toastSlide {
+      from {
+        transform: translateX(80px);
+        opacity: 0;
+      }
+
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    .toast-card.critical {
+      border-color: rgba(239, 68, 68, 0.5);
+    }
+
+    .toast-card.success {
+      border-color: rgba(16, 185, 129, 0.5);
+    }
+
+    .toast-card.info {
+      border-color: rgba(59, 130, 246, 0.5);
+    }
+
+    .toast-icon {
+      font-size: 16px;
+    }
+
+    .toast-msg {
+      flex: 1;
+      color: var(--text);
+    }
+
+    /* Scrollbar global */
+    ::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--slate);
+      border-radius: 2px;
+    }
+
+    /* Cesium override tweaks */
+    .cesium-widget-credits {
+      display: none !important;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <div class="header-brand">
+      <div class="brand-icon">🛡️</div>
+      <div>
+        <div class="brand-name">PETPOOJA SECUREOPS</div>
+        <div class="brand-sub">Theft Detection Intelligence Platform</div>
+      </div>
+    </div>
+
+    <div class="header-center">
+      <div class="threat-level" id="threatLevel">
+        <div class="tl-dot"></div>
+        <span id="threatText">THREAT: LOW</span>
+      </div>
+      <div class="header-stats">
+        <div class="hstat">
+          <div class="val" id="statAlerts">0</div>
+          <div class="lbl">Alerts</div>
+        </div>
+        <div class="hstat">
+          <div class="val" style="color:var(--green)" id="statVerified">0</div>
+          <div class="lbl">Verified</div>
+        </div>
+        <div class="hstat">
+          <div class="val" style="color:var(--amber)" id="statPending">0</div>
+          <div class="lbl">Pending</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="header-right">
+      <div class="store-tag">STORE #PP-042</div>
+      <div id="live-clock">--:--:--</div>
+      <div class="admin-badge">ADMIN</div>
+    </div>
+  </header>
+
+  <!-- LAYOUT -->
+  <div class="layout">
+
+    <!-- LEFT PANEL -->
+    <div class="left-panel">
+      <div class="panel-label">
+        <span>Station Monitor</span>
+        <span style="color:var(--green);font-family:var(--mono);">● 4 ONLINE</span>
+      </div>
+
+      <!-- KPIs -->
+      <div class="kpi-grid">
+        <div class="kpi-card red">
+          <div class="kpi-value" id="kpiUnauth">3</div>
+          <div class="kpi-label">Unauthorized Opens</div>
+          <div class="kpi-delta" style="color:var(--red)">↑ +2 today</div>
+        </div>
+        <div class="kpi-card blue">
+          <div class="kpi-value" id="kpiTransact">142</div>
+          <div class="kpi-label">POS Transactions</div>
+          <div class="kpi-delta" style="color:var(--green)">↑ Normal</div>
+        </div>
+        <div class="kpi-card amber">
+          <div class="kpi-value" id="kpiSuspicious">7</div>
+          <div class="kpi-label">Suspicious Actions</div>
+          <div class="kpi-delta" style="color:var(--amber)">⚠ Review needed</div>
+        </div>
+        <div class="kpi-card green">
+          <div class="kpi-value" id="kpiSync">98.4%</div>
+          <div class="kpi-label">Temporal Sync</div>
+          <div class="kpi-delta" style="color:var(--green)">✓ Within 80ms</div>
+        </div>
+      </div>
+
+      <!-- AI Status -->
+      <div class="ai-status">
+        <div class="ai-model-row">
+          <span class="ai-model-name">AI ENGINE v2.3</span>
+          <span class="ai-status-dot">
+            <div class="dot-green"></div>ACTIVE
+          </span>
+        </div>
+        <div class="ai-metrics">
+          <div class="ai-metric">
+            <div class="mv" id="aiAccuracy">94.7%</div>
+            <div class="ml">Accuracy</div>
+            <div class="confidence-bar">
+              <div class="confidence-fill" style="width:94.7%"></div>
+            </div>
+          </div>
+          <div class="ai-metric">
+            <div class="mv" id="aiLatency">43ms</div>
+            <div class="ml">Latency</div>
+            <div class="confidence-bar">
+              <div class="confidence-fill" style="width:80%"></div>
+            </div>
+          </div>
+          <div class="ai-metric">
+            <div class="mv" id="aiFP">1.3%</div>
+            <div class="ml">False+</div>
+            <div class="confidence-bar">
+              <div class="confidence-fill" style="width:10%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Station List -->
+      <div class="panel-label">
+        <span>Counters</span>
+        <span>4 / 4 ACTIVE</span>
+      </div>
+      <div class="station-list" id="stationList"></div>
+    </div>
+
+    <!-- CENTER PANEL -->
+    <div class="center-panel">
+
+      <!-- Video Feeds -->
+      <div class="video-section">
+        <div class="video-header">
+          <span class="video-title">📹 Live CCTV Feeds</span>
+          <div class="video-controls">
+            <button class="vctrl active" id="liveBtn" onclick="toggleLive(this)">● LIVE</button>
+            <button class="vctrl" onclick="showToast('Playback mode — connect to DVR system','info')">⏮
+              PLAYBACK</button>
+            <button class="vctrl" onclick="showToast('Snapshot saved to evidence folder','success')">📷
+              SNAPSHOT</button>
+            <button class="vctrl" onclick="showToast('Exporting clip...','info')">⬇ EXPORT</button>
+          </div>
+        </div>
+
+        <div class="video-grid">
+          <!-- Feed 1 - Counter 1 -->
+          <div class="video-feed" id="feed1">
+            <canvas class="camera-canvas" id="cam1"></canvas>
+            <div class="feed-label">CAM-01 · Counter 1</div>
+            <div class="feed-time" id="feedTime1"></div>
+            <div class="feed-status">
+              <div class="feed-dot" style="background:var(--red);animation:blink 0.5s infinite"></div>REC
+            </div>
+            <div class="feed-alert-overlay visible" id="feed1Alert"></div>
+            <div class="det-box" id="detBox1" style="display:block;top:30%;left:40%;width:80px;height:90px;">
+              <div class="det-box-label">HAND → POCKET [91%]</div>
+            </div>
+          </div>
+
+          <!-- Feed 2 - Counter 2 -->
+          <div class="video-feed" id="feed2">
+            <canvas class="camera-canvas" id="cam2"></canvas>
+            <div class="feed-label">CAM-02 · Counter 2</div>
+            <div class="feed-time" id="feedTime2"></div>
+            <div class="feed-status">
+              <div class="feed-dot" style="background:var(--red);animation:blink 0.5s infinite"></div>REC
+            </div>
+            <div class="feed-alert-overlay" id="feed2Alert"></div>
+          </div>
+
+          <!-- Feed 3 - Entrance -->
+          <div class="video-feed" id="feed3">
+            <canvas class="camera-canvas" id="cam3"></canvas>
+            <div class="feed-label">CAM-03 · Entrance</div>
+            <div class="feed-time" id="feedTime3"></div>
+            <div class="feed-status">
+              <div class="feed-dot" style="background:var(--red);animation:blink 0.5s infinite"></div>REC
+            </div>
+            <div class="feed-alert-overlay" id="feed3Alert"></div>
+          </div>
+
+          <!-- Feed 4 - Counter 3 -->
+          <div class="video-feed" id="feed4">
+            <canvas class="camera-canvas" id="cam4"></canvas>
+            <div class="feed-label">CAM-04 · Counter 3</div>
+            <div class="feed-time" id="feedTime4"></div>
+            <div class="feed-status">
+              <div class="feed-dot" style="background:var(--red);animation:blink 0.5s infinite"></div>REC
+            </div>
+            <div class="feed-alert-overlay" id="feed4Alert"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CESIUM DIGITAL TWIN -->
+      <div class="cesium-section">
+        <div class="cesium-header">
+          <span class="cesium-title">⬡ 3D DIGITAL TWIN — Station Map</span>
+          <div class="cesium-controls">
+            <button class="cesium-toggle active" id="toggleDrawer" onclick="toggleDrawerState(this)">Drawer:
+              CLOSED</button>
+            <button class="cesium-toggle" onclick="toggleHandTrack(this)">Hand Tracking</button>
+            <button class="cesium-toggle" onclick="resetCesiumView()">Reset View</button>
+          </div>
+        </div>
+        <div id="cesiumContainer">
+          <!-- Cesium canvas renders here, fallback below -->
+          <div class="cesium-fallback" id="cesiumFallback">
+            <canvas id="twinCanvas" style="position:absolute;inset:0;width:100%;height:100%;"></canvas>
+
+            <!-- Overlays on 3D scene -->
+            <div class="drawer-status-overlay">
+              <div class="ds-title">Cash Drawer</div>
+              <div class="ds-row">
+                <span>State:</span>
+                <span class="ds-val" id="drawerStateVal">CLOSED</span>
+              </div>
+              <div class="ds-row">
+                <span>Access:</span>
+                <span class="ds-val auth" id="drawerAuthVal">AUTHORIZED</span>
+              </div>
+              <div class="ds-row">
+                <span>Last Open:</span>
+                <span class="ds-val" id="drawerLastOpen" style="color:var(--text-dim);font-size:10px;">—</span>
+              </div>
+            </div>
+
+            <div class="hand-track-overlay" id="handTrackOverlay" style="display:none">
+              <div class="ht-title">Hand Track · Polyline</div>
+              <div class="coord-row"><span class="mi-label">X:</span><span class="coord-val" id="htX">0.00</span></div>
+              <div class="coord-row"><span class="mi-label">Y:</span><span class="coord-val" id="htY">0.00</span></div>
+              <div class="coord-row"><span class="mi-label">Z:</span><span class="coord-val" id="htZ">0.00</span></div>
+              <div class="coord-row"><span class="mi-label">Vel:</span><span class="coord-val" id="htVel">0.00
+                  m/s</span></div>
+              <div class="coord-row"><span class="mi-label">Conf:</span><span class="coord-val" id="htConf">—</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- center-panel -->
+
+    <!-- RIGHT PANEL — ALERTS -->
+    <div class="right-panel">
+      <div class="alerts-header">
+        <span class="alerts-title">⚠ ANOMALY ALERTS</span>
+        <span class="alert-count-badge" id="alertBadge">0</span>
+      </div>
+
+      <div class="filter-row">
+        <button class="filter-pill active" onclick="filterAlerts('all',this)">ALL</button>
+        <button class="filter-pill" onclick="filterAlerts('critical',this)">CRITICAL</button>
+        <button class="filter-pill" onclick="filterAlerts('warn',this)">WARN</button>
+        <button class="filter-pill" onclick="filterAlerts('info',this)">INFO</button>
+      </div>
+
+      <div class="alerts-list" id="alertsList"></div>
+
+      <!-- Timeline -->
+      <div class="timeline-section">
+        <div class="timeline-label">Event Timeline — Last 8h</div>
+        <div class="timeline-track" id="timeline">
+          <div class="timeline-now"></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- layout -->
+
+  <!-- BLOCKCHAIN MODAL -->
+  <div class="bc-modal" id="bcModal">
+    <div class="bc-inner">
+      <h2>⛓ Blockchain Verification</h2>
+      <div class="bc-sub">Immutable evidence ledger — Hyperledger Fabric</div>
+
+      <div class="bc-hash-display">
+        <div class="bc-hash-label">Transaction Hash</div>
+        <div class="bc-hash-val" id="bcHash">Computing...</div>
+      </div>
+
+      <div class="bc-rows">
+        <div class="bc-row">
+          <div class="bc-row-label">Block Number</div>
+          <div class="bc-row-val" id="bcBlock">#—</div>
+        </div>
+        <div class="bc-row">
+          <div class="bc-row-label">Timestamp</div>
+          <div class="bc-row-val" id="bcTime">—</div>
+        </div>
+        <div class="bc-row">
+          <div class="bc-row-label">Network</div>
+          <div class="bc-row-val" id="bcNetwork">PP-CHAIN</div>
+        </div>
+        <div class="bc-row">
+          <div class="bc-row-label">Confirmations</div>
+          <div class="bc-row-val" id="bcConf">0 / 3</div>
+        </div>
+      </div>
+
+      <div class="bc-status pending" id="bcStatusEl">
+        ⏳ Broadcasting to network nodes...
+      </div>
+
+      <div class="bc-progress">
+        <div class="bc-progress-fill" id="bcProgressFill"></div>
+      </div>
+
+      <button class="bc-close" onclick="closeBcModal()">Close</button>
+    </div>
+  </div>
+
+  <!-- TOAST ZONE -->
+  <div class="toast-zone" id="toastZone"></div>
+
+  <script>
+    // ── CLOCK ─────────────────────────────────────────────
+    function updateClock() {
+      const now = new Date();
+      document.getElementById('live-clock').textContent =
+        now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      const ts = now.toLocaleTimeString('en-IN', { hour12: false });
+      ['feedTime1', 'feedTime2', 'feedTime3', 'feedTime4'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = ts;
+      });
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // ── STATIONS ─────────────────────────────────────────
+    const stations = [
+      { id: 1, name: 'Counter 1 — Riya Sharma', cam: 'CAM-01', status: 'alert', badge: 'ALERT', cashier: 'C01' },
+      { id: 2, name: 'Counter 2 — Arjun Mehta', cam: 'CAM-02', status: 'ok', badge: 'CLEAR', cashier: 'C02' },
+      { id: 3, name: 'Counter 3 — Priya Patel', cam: 'CAM-03', status: 'warn', badge: 'WARN', cashier: 'C03' },
+      { id: 4, name: 'Counter 4 — Suresh Kumar', cam: 'CAM-04', status: 'ok', badge: 'CLEAR', cashier: 'C04' },
+    ];
+
+    function renderStations() {
+      const list = document.getElementById('stationList');
+      list.innerHTML = stations.map((s, i) => `
+    <div class="station-item ${i === 0 ? 'active' : ''}" onclick="selectStation(this,${s.id})">
+      <div class="station-indicator ${s.status}"></div>
+      <div class="station-info">
+        <div class="station-name">${s.name}</div>
+        <div class="station-meta">${s.cam} · ${s.cashier}</div>
+      </div>
+      <div class="station-badge ${s.status}">${s.badge}</div>
+    </div>
+  `).join('');
+    }
+
+    function selectStation(el, id) {
+      document.querySelectorAll('.station-item').forEach(e => e.classList.remove('active'));
+      el.classList.add('active');
+      showToast(`Switched to Counter ${id} feed`, 'info');
+    }
+
+    renderStations();
+
+    // ── ALERT DATA ─────────────────────────────────────────
+    let alertsData = [
+      {
+        id: 'ALT001',
+        type: 'critical',
+        title: 'Unauthorized Drawer Open — Counter 1',
+        desc: 'Cash drawer opened without corresponding POS command. No Cash Sale, Shift End, or Day End event detected in log window ±3s.',
+        station: 'Counter 1',
+        time: '14:32:07',
+        confidence: 91,
+        event: 'LOGICAL_ANOMALY',
+        duration: '8s',
+        verified: false,
+      },
+      {
+        id: 'ALT002',
+        type: 'critical',
+        title: 'Suspicious Hand Movement — Pocket',
+        desc: 'Action recognition model detected hand trajectory from drawer to pocket during authorized Cash Sale. Inconsistent with standard transaction behavior.',
+        station: 'Counter 1',
+        time: '14:31:22',
+        confidence: 87,
+        event: 'PHYSICAL_ANOMALY',
+        duration: '3.2s',
+        verified: false,
+      },
+      {
+        id: 'ALT003',
+        type: 'warn',
+        title: 'Drawer Open — Extended Duration',
+        desc: 'Cash drawer remained open for 47 seconds during a valid Cash Sale. Standard window is 8-12 seconds. Possible fumbling or deliberate delay.',
+        station: 'Counter 3',
+        time: '13:55:44',
+        confidence: 72,
+        event: 'TEMPORAL_ANOMALY',
+        duration: '47s',
+        verified: false,
+      },
+      {
+        id: 'ALT004',
+        type: 'warn',
+        title: 'Unattended Station — Drawer Vibration',
+        desc: 'Physical sensor detected micro-vibration on drawer lock at 13:22 while station marked unattended. No personnel visible in frame.',
+        station: 'Counter 2',
+        time: '13:22:18',
+        confidence: 64,
+        event: 'TAMPER_DETECT',
+        duration: '2.1s',
+        verified: true,
+      },
+      {
+        id: 'ALT005',
+        type: 'info',
+        title: 'No-Sale — Repeated (5x in 2h)',
+        desc: 'Counter 4 has logged 5 No-Sale drawer opens in the last 2 hours. Threshold is 3 per shift. May indicate change-making abuse.',
+        station: 'Counter 4',
+        time: '13:10:00',
+        confidence: 55,
+        event: 'PATTERN_FLAG',
+        duration: 'N/A',
+        verified: false,
+      },
+    ];
+
+    let alertFilter = 'all';
+    let verifiedCount = 1;
+    let pendingCount = 4;
+
+    function renderAlerts() {
+      const list = document.getElementById('alertsList');
+      const filtered = alertFilter === 'all' ? alertsData : alertsData.filter(a => a.type === alertFilter);
+
+      document.getElementById('alertBadge').textContent = alertsData.filter(a => !a.verified).length;
+      document.getElementById('statAlerts').textContent = alertsData.length;
+      document.getElementById('statVerified').textContent = alertsData.filter(a => a.verified).length;
+      document.getElementById('statPending').textContent = alertsData.filter(a => !a.verified).length;
+
+      // Threat level
+      const critCount = alertsData.filter(a => a.type === 'critical' && !a.verified).length;
+      const tl = document.getElementById('threatLevel');
+      const tt = document.getElementById('threatText');
+      if (critCount >= 2) {
+        tl.className = 'threat-level high';
+        tt.textContent = 'THREAT: HIGH';
+      } else if (critCount === 1) {
+        tl.className = 'threat-level med';
+        tt.textContent = 'THREAT: MEDIUM';
+      } else {
+        tl.className = 'threat-level low';
+        tt.textContent = 'THREAT: LOW';
+      }
+
+      list.innerHTML = filtered.map(a => {
+        const confClass = a.confidence >= 80 ? 'high' : a.confidence >= 60 ? 'med' : 'low';
+        return `
+    <div class="alert-card ${a.type}" id="card-${a.id}">
+      <div class="alert-card-header">
+        <div>
+          <div style="margin-bottom:4px;">
+            <span class="alert-type-tag ${a.type}">${a.type.toUpperCase()}</span>
+            ${a.verified ? '<span style="font-size:9px;color:var(--green);font-family:var(--mono);margin-left:6px;">✓ VERIFIED</span>' : ''}
+          </div>
+          <div class="alert-title">${a.title}</div>
+        </div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--text-dim);white-space:nowrap;">${a.time}</div>
+      </div>
+      <div class="alert-body">
+        <div class="alert-desc">${a.desc}</div>
+        <div class="alert-meta">
+          <div class="alert-meta-item"><span class="mi-label">Station: </span><span style="color:var(--text)">${a.station}</span></div>
+          <div class="alert-meta-item"><span class="mi-label">Event: </span><span style="color:var(--cyan)">${a.event}</span></div>
+          <div class="alert-meta-item"><span class="mi-label">Duration: </span><span style="color:var(--text)">${a.duration}</span></div>
+        </div>
+        <div class="alert-conf">
+          <span class="alert-conf-label">AI CONFIDENCE</span>
+          <div class="conf-bar"><div class="conf-fill ${confClass}" style="width:${a.confidence}%"></div></div>
+          <span class="conf-pct">${a.confidence}%</span>
+        </div>
+      </div>
+      <div class="alert-actions">
+        <button class="aa-btn blockchain" onclick="openBlockchain('${a.id}','${a.time}', '${a.tx_hash || ''}')">⛓ Verify on Chain</button>
+        <button class="aa-btn escalate" onclick="escalate('${a.id}')">↑ Escalate</button>
+        <button class="aa-btn dismiss" onclick="dismiss('${a.id}')">✓ Dismiss</button>
+      </div>
+    </div>
+    `;
+      }).join('');
+
+      renderTimeline();
+    }
+
+    function filterAlerts(type, btn) {
+      alertFilter = type;
+      document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      renderAlerts();
+    }
+
+    function dismiss(id) {
+      const idx = alertsData.findIndex(a => a.id === id);
+      if (idx > -1) {
+        alertsData[idx].verified = true;
+        renderAlerts();
+        showToast(`Alert ${id} marked as reviewed`, 'success');
+      }
+    }
+
+    function escalate(id) {
+      showToast(`🚨 Alert ${id} escalated to Store Manager`, 'critical');
+    }
+
+    renderAlerts();
+
+    // ── BLOCKCHAIN MODAL ──────────────────────────────────
+    function openBlockchain(id, time, txHash) {
+      const modal = document.getElementById('bcModal');
+      modal.classList.add('open');
+
+      const isReal = !!txHash && txHash !== 'undefined' && txHash !== 'null' && txHash !== '';
+      const hash = isReal ? txHash : generateHash();
+      const blockNum = isReal ? '5612' + Math.floor(Math.random() * 900) : Math.floor(Math.random() * 900000) + 100000;
+      const now = new Date().toISOString().replace('T', ' ').slice(0, 19);
+
+      // Link to Etherscan if real
+      const hashDisplay = isReal ?
+        `<a href="https://sepolia.etherscan.io/tx/${hash}" target="_blank" style="color:var(--cyan);text-decoration:underline;font-weight:bold;">${hash.substring(0, 20)}... (View on Etherscan ↗)</a>`
+        : 'Computing...';
+
+      document.getElementById('bcHash').innerHTML = isReal ? hashDisplay : 'Computing...';
+      document.getElementById('bcBlock').textContent = isReal ? '#' + blockNum : '#—';
+      document.getElementById('bcTime').textContent = isReal ? time : '—';
+      document.getElementById('bcNetwork').textContent = 'SEPOLIA TESTNET'; // Updated from PP-CHAIN
+      document.getElementById('bcConf').textContent = isReal ? '12 / 12' : '0 / 3';
+
+      if (isReal) {
+        document.getElementById('bcStatusEl').className = 'bc-status confirmed';
+        document.getElementById('bcStatusEl').textContent = '✓ Verified on Sepolia Testnet';
+        document.getElementById('bcProgressFill').style.width = '100%';
+        // Removed auto-dismiss so user can click the link
+        // dismiss(id); 
+      } else {
+        document.getElementById('bcStatusEl').className = 'bc-status pending';
+        document.getElementById('bcStatusEl').textContent = '⏳ Broadcasting to network nodes...';
+        document.getElementById('bcProgressFill').style.width = '0%';
+
+        // Simulate fake loading only if no real hash
+        let progress = 0;
+        const interval = setInterval(() => {
+          progress += Math.random() * 15 + 5;
+          if (progress > 100) progress = 100;
+          document.getElementById('bcProgressFill').style.width = progress + '%';
+
+          if (progress > 30) {
+            document.getElementById('bcHash').textContent = hash;
+            document.getElementById('bcBlock').textContent = '#' + blockNum;
+          }
+          if (progress > 60) {
+            document.getElementById('bcTime').textContent = now;
+            document.getElementById('bcConf').textContent = '1 / 3';
+            document.getElementById('bcStatusEl').textContent = '⏳ Awaiting confirmations (1/3)...';
+          }
+          if (progress > 85) {
+            document.getElementById('bcConf').textContent = '2 / 3';
+          }
+          if (progress >= 100) {
+            clearInterval(interval);
+            document.getElementById('bcConf').textContent = '3 / 3';
+            document.getElementById('bcStatusEl').className = 'bc-status confirmed';
+            document.getElementById('bcStatusEl').textContent = '✓ Immutably recorded on SEPOLIA';
+            dismiss(id);
+          }
+        }, 200);
+      }
+    }
+
+    function closeBcModal() {
+      document.getElementById('bcModal').classList.remove('open');
+    }
+
+    function generateHash() {
+      const chars = '0123456789abcdef';
+      return '0x' + Array.from({ length: 64 }, () => chars[Math.floor(Math.random() * 16)]).join('');
+    }
+
+    // ── TIMELINE ───────────────────────────────────────────
+    function renderTimeline() {
+      const track = document.getElementById('timeline');
+      const events = [
+        { pos: 5, type: 'cash' },
+        { pos: 12, type: 'cash' },
+        { pos: 18, type: 'cash' },
+        { pos: 25, type: 'alert' },
+        { pos: 31, type: 'nosale' },
+        { pos: 40, type: 'cash' },
+        { pos: 48, type: 'cash' },
+        { pos: 55, type: 'alert' },
+        { pos: 62, type: 'nosale' },
+        { pos: 68, type: 'cash' },
+        { pos: 74, type: 'cash' },
+        { pos: 80, type: 'alert' },
+        { pos: 87, type: 'cash' },
+      ];
+
+      const existingEvents = track.querySelectorAll('.timeline-event');
+      existingEvents.forEach(e => e.remove());
+
+      events.forEach(ev => {
+        const el = document.createElement('div');
+        el.className = `timeline-event ${ev.type}`;
+        el.style.left = ev.pos + '%';
+        el.title = ev.type.toUpperCase();
+        track.appendChild(el);
+      });
+    }
+
+    // ── STATE VARIABLES ──────────────────────────────────
+    let drawerOpen = false;
+    let handTracking = false;
+    let drawerOpenTime = null;
+    const handPoints = [];
+    let handAnimT = 0;
+
+    // ── CAMERA CANVAS VISUALIZATION ──────────────────────
+    const cams = ['cam1', 'cam2', 'cam3', 'cam4'];
+    const camCtxs = {};
+
+    cams.forEach(id => {
+      const canvas = document.getElementById(id);
+      if (!canvas) return;
+      canvas.width = canvas.offsetWidth || 400;
+      canvas.height = canvas.offsetHeight || 280;
+      camCtxs[id] = canvas.getContext('2d');
+    });
+
+    function drawCamera(ctx, id, hasAlert) {
+      if (!ctx) return;
+      const w = ctx.canvas.width;
+      const h = ctx.canvas.height;
+
+      // Background
+      ctx.fillStyle = '#060D16';
+      ctx.fillRect(0, 0, w, h);
+
+      // Grid lines
+      ctx.strokeStyle = 'rgba(59,130,246,0.05)';
+      ctx.lineWidth = 1;
+      for (let x = 0; x < w; x += 40) {
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+      }
+      for (let y = 0; y < h; y += 40) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+      }
+
+      // Counter outline
+      ctx.strokeStyle = 'rgba(59,130,246,0.2)';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(w * 0.1, h * 0.3, w * 0.8, h * 0.55);
+
+      // POS terminal shape
+      ctx.fillStyle = 'rgba(59,130,246,0.12)';
+      ctx.fillRect(w * 0.15, h * 0.35, w * 0.25, h * 0.3);
+      ctx.strokeStyle = 'rgba(59,130,246,0.4)';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(w * 0.15, h * 0.35, w * 0.25, h * 0.3);
+
+      // Screen glow on POS
+      ctx.fillStyle = 'rgba(6,182,212,0.15)';
+      ctx.fillRect(w * 0.17, h * 0.37, w * 0.21, h * 0.18);
+
+      // Cash drawer shape
+      const drawerColor = drawerOpen ? 'rgba(239,68,68,0.25)' : 'rgba(16,185,129,0.12)';
+      const drawerStroke = drawerOpen ? 'rgba(239,68,68,0.7)' : 'rgba(16,185,129,0.4)';
+      ctx.fillStyle = drawerColor;
+      ctx.fillRect(w * 0.5, h * 0.55, w * 0.3, h * 0.2);
+      ctx.strokeStyle = drawerStroke;
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(w * 0.5, h * 0.55, w * 0.3, h * 0.2);
+
+      if (drawerOpen) {
+        ctx.fillStyle = 'rgba(239,68,68,0.08)';
+        ctx.fillRect(w * 0.5, h * 0.75, w * 0.3, h * 0.08);
+        ctx.strokeStyle = 'rgba(239,68,68,0.5)';
+        ctx.strokeRect(w * 0.5, h * 0.75, w * 0.3, h * 0.08);
+      }
+
+      // Silhouette — person
+      ctx.fillStyle = 'rgba(100,130,180,0.25)';
+      ctx.beginPath();
+      ctx.ellipse(w * 0.35, h * 0.28, 18, 22, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillRect(w * 0.22, h * 0.5, w * 0.26, h * 0.3);
+
+      // Hand tracking polyline if enabled
+      if (handTracking && id === 'cam1') {
+        const pts = handPoints;
+        if (pts.length > 1) {
+          ctx.beginPath();
+          ctx.strokeStyle = 'rgba(6,182,212,0.85)';
+          ctx.lineWidth = 2;
+          ctx.setLineDash([4, 2]);
+          ctx.moveTo(pts[0].x * w, pts[0].y * h);
+          pts.forEach(p => ctx.lineTo(p.x * w, p.y * h));
+          ctx.stroke();
+          ctx.setLineDash([]);
+
+          // Dots
+          pts.forEach((p, i) => {
+            ctx.beginPath();
+            ctx.arc(p.x * w, p.y * h, 3, 0, Math.PI * 2);
+            ctx.fillStyle = i === pts.length - 1 ? '#EF4444' : 'rgba(6,182,212,0.7)';
+            ctx.fill();
+          });
+        }
+      }
+
+      // AI detection overlay for cam1
+      if (id === 'cam1' && hasAlert) {
+        ctx.strokeStyle = 'rgba(239,68,68,0.7)';
+        ctx.lineWidth = 1.5;
+        ctx.setLineDash([5, 3]);
+        ctx.strokeRect(w * 0.38, h * 0.28, w * 0.2, h * 0.35);
+        ctx.setLineDash([]);
+
+        ctx.fillStyle = 'rgba(239,68,68,0.85)';
+        ctx.fillRect(w * 0.38, h * 0.22, w * 0.2, 16);
+        ctx.fillStyle = 'white';
+        ctx.font = '9px Space Mono, monospace';
+        ctx.fillText('ANOMALY [91%]', w * 0.39, h * 0.22 + 11);
+      }
+
+      // Scanline
+      const scanY = ((Date.now() / 8) % h);
+      const grad = ctx.createLinearGradient(0, scanY - 20, 0, scanY + 20);
+      grad.addColorStop(0, 'rgba(59,130,246,0)');
+      grad.addColorStop(0.5, 'rgba(59,130,246,0.04)');
+      grad.addColorStop(1, 'rgba(59,130,246,0)');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, scanY - 20, w, 40);
+    }
+
+    // Resize canvases on window resize
+    function resizeCanvases() {
+      cams.forEach(id => {
+        const canvas = document.getElementById(id);
+        if (!canvas) return;
+        const parent = canvas.parentElement;
+        canvas.width = parent.offsetWidth;
+        canvas.height = parent.offsetHeight;
+      });
+    }
+    window.addEventListener('resize', resizeCanvases);
+    setTimeout(resizeCanvases, 100);
+
+    let frame = 0;
+    function animateFeeds() {
+      frame++;
+      drawCamera(camCtxs['cam1'], 'cam1', true);
+      drawCamera(camCtxs['cam2'], 'cam2', false);
+      drawCamera(camCtxs['cam3'], 'cam3', false);
+      drawCamera(camCtxs['cam4'], 'cam4', false);
+      requestAnimationFrame(animateFeeds);
+    }
+    animateFeeds();
+
+    // ── 3D TWIN CANVAS ────────────────────────────────────
+    const twinCanvas = document.getElementById('twinCanvas');
+    const tCtx = twinCanvas.getContext('2d');
+    // Variables moved to top to avoid ReferenceError
+
+
+    function resizeTwin() {
+      twinCanvas.width = twinCanvas.offsetWidth || 600;
+      twinCanvas.height = twinCanvas.offsetHeight || 300;
+    }
+
+    window.addEventListener('resize', resizeTwin);
+    setTimeout(resizeTwin, 100);
+
+    function drawTwin() {
+      const W = twinCanvas.width;
+      const H = twinCanvas.height;
+      const ctx = tCtx;
+
+      // Background
+      ctx.fillStyle = '#020C1B';
+      ctx.fillRect(0, 0, W, H);
+
+      // Stars
+      ctx.fillStyle = 'rgba(255,255,255,0.3)';
+      for (let i = 0; i < 80; i++) {
+        const sx = (i * 1237) % W;
+        const sy = (i * 891 + i * i) % H;
+        ctx.fillRect(sx, sy, 1, 1);
+      }
+
+      // Ground plane grid (perspective)
+      ctx.strokeStyle = 'rgba(59,130,246,0.12)';
+      ctx.lineWidth = 1;
+      const vp = { x: W / 2, y: H * 0.35 };
+      const gridLines = 12;
+      for (let i = 0; i <= gridLines; i++) {
+        const x = W * (i / gridLines);
+        ctx.beginPath();
+        ctx.moveTo(x, H);
+        ctx.lineTo(vp.x, vp.y);
+        ctx.stroke();
+      }
+      for (let i = 0; i <= 8; i++) {
+        const t = i / 8;
+        const y = vp.y + (H - vp.y) * t;
+        const xLeft = vp.x - (vp.x) * t;
+        const xRight = vp.x + (W - vp.x) * t;
+        ctx.beginPath();
+        ctx.moveTo(xLeft, y);
+        ctx.lineTo(xRight, y);
+        ctx.stroke();
+      }
+
+      // Counter Top (3D box isometric-ish)
+      const cx = W * 0.5, cy = H * 0.52;
+      const bw = W * 0.35, bh = H * 0.15, bd = H * 0.1;
+
+      // Top face
+      ctx.fillStyle = drawerOpen ? 'rgba(239,68,68,0.12)' : 'rgba(30,50,80,0.8)';
+      ctx.strokeStyle = drawerOpen ? 'rgba(239,68,68,0.5)' : 'rgba(59,130,246,0.4)';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.rect(cx - bw / 2, cy - bh / 2, bw, bh);
+      ctx.fill(); ctx.stroke();
+
+      // Front face
+      ctx.fillStyle = drawerOpen ? 'rgba(239,68,68,0.18)' : 'rgba(20,35,60,0.9)';
+      ctx.strokeStyle = drawerOpen ? 'rgba(239,68,68,0.6)' : 'rgba(59,130,246,0.3)';
+      ctx.beginPath();
+      ctx.rect(cx - bw / 2, cy + bh / 2, bw, bd);
+      ctx.fill(); ctx.stroke();
+
+      // Right face
+      ctx.fillStyle = 'rgba(15,25,45,0.9)';
+      ctx.beginPath();
+      ctx.moveTo(cx + bw / 2, cy - bh / 2);
+      ctx.lineTo(cx + bw / 2 + 20, cy - bh / 2 - 10);
+      ctx.lineTo(cx + bw / 2 + 20, cy + bh / 2 + bd - 10);
+      ctx.lineTo(cx + bw / 2, cy + bh / 2 + bd);
+      ctx.closePath();
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(59,130,246,0.25)';
+      ctx.stroke();
+
+      // POS Terminal on counter
+      const px = cx - bw / 2 + 20, py = cy - bh / 2;
+      ctx.fillStyle = 'rgba(10,20,40,0.9)';
+      ctx.strokeStyle = 'rgba(6,182,212,0.5)';
+      ctx.lineWidth = 1;
+      ctx.fillRect(px, py - 40, 60, 40);
+      ctx.strokeRect(px, py - 40, 60, 40);
+      // Screen
+      ctx.fillStyle = 'rgba(6,182,212,0.2)';
+      ctx.fillRect(px + 5, py - 36, 50, 28);
+      // Screen glow text
+      ctx.fillStyle = 'rgba(6,182,212,0.8)';
+      ctx.font = '7px Space Mono, monospace';
+      ctx.fillText('₹ 189.00', px + 8, py - 20);
+      ctx.fillText('POS ACTIVE', px + 8, py - 10);
+
+      // Cash drawer animated
+      const drawerOffset = drawerOpen ? 30 : 0;
+      const drawerX = cx + 20;
+      const drawerY = cy - bh / 2 + 5;
+
+      // Drawer body
+      ctx.fillStyle = drawerOpen ? 'rgba(239,68,68,0.3)' : 'rgba(40,70,120,0.6)';
+      ctx.strokeStyle = drawerOpen ? '#EF4444' : 'rgba(59,130,246,0.6)';
+      ctx.lineWidth = 1.5;
+      ctx.fillRect(drawerX, drawerY + drawerOffset, bw * 0.45, bh * 0.5);
+      ctx.strokeRect(drawerX, drawerY + drawerOffset, bw * 0.45, bh * 0.5);
+
+      // Drawer handle
+      ctx.strokeStyle = drawerOpen ? '#FCA5A5' : 'rgba(100,150,255,0.8)';
+      ctx.beginPath();
+      ctx.arc(drawerX + bw * 0.225, drawerY + bh * 0.25 + drawerOffset, 6, 0, Math.PI * 2);
+      ctx.stroke();
+
+      // Drawer label
+      ctx.fillStyle = drawerOpen ? '#FCA5A5' : 'rgba(100,150,255,0.8)';
+      ctx.font = '8px Space Mono, monospace';
+      ctx.fillText(drawerOpen ? 'OPEN' : 'CLOSED', drawerX + 4, drawerY + drawerOffset - 5);
+
+      // If drawer open, show contents hint
+      if (drawerOpen) {
+        ctx.fillStyle = 'rgba(245,158,11,0.3)';
+        ctx.fillRect(drawerX + 5, drawerY + drawerOffset + 5, bw * 0.45 - 10, bh * 0.5 - 10);
+        // Cash lines
+        ctx.strokeStyle = 'rgba(245,158,11,0.6)';
+        ctx.lineWidth = 1;
+        for (let i = 0; i < 4; i++) {
+          ctx.beginPath();
+          ctx.moveTo(drawerX + 8 + i * 15, drawerY + drawerOffset + 8);
+          ctx.lineTo(drawerX + 8 + i * 15, drawerY + drawerOffset + bh * 0.5 - 8);
+          ctx.stroke();
+        }
+      }
+
+      // Hand track polyline in 3D space
+      if (handTracking && handPoints.length > 1) {
+        ctx.beginPath();
+        ctx.strokeStyle = 'rgba(6,182,212,0.9)';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([5, 3]);
+        handPoints.forEach((p, i) => {
+          const x = cx + (p.x - 0.5) * bw * 2;
+          const y = cy + (p.y - 0.5) * bh * 3;
+          if (i === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        });
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Endpoint marker
+        const last = handPoints[handPoints.length - 1];
+        const lx = cx + (last.x - 0.5) * bw * 2;
+        const ly = cy + (last.y - 0.5) * bh * 3;
+        ctx.beginPath();
+        ctx.arc(lx, ly, 5, 0, Math.PI * 2);
+        ctx.fillStyle = '#EF4444';
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(239,68,68,0.5)';
+        ctx.lineWidth = 8;
+        ctx.beginPath();
+        ctx.arc(lx, ly, 12, 0, Math.PI * 2);
+        ctx.stroke();
+
+        // Coords update
+        document.getElementById('htX').textContent = (last.x * 2.4 - 1.2).toFixed(3) + 'm';
+        document.getElementById('htY').textContent = (last.y * 1.8 - 0.9).toFixed(3) + 'm';
+        document.getElementById('htZ').textContent = '0.850m';
+        document.getElementById('htVel').textContent = (Math.random() * 0.8 + 0.2).toFixed(2) + ' m/s';
+        document.getElementById('htConf').textContent = Math.floor(Math.random() * 10 + 87) + '%';
+      }
+
+      // Floating labels
+      ctx.font = '10px Space Mono, monospace';
+      ctx.fillStyle = 'rgba(6,182,212,0.7)';
+      ctx.fillText('COUNTER-01', cx - bw / 2, cy - bh / 2 - 8);
+      ctx.fillStyle = 'rgba(255,255,255,0.3)';
+      ctx.fillText('3D DIGITAL TWIN — PetPooja SecureOps', 10, H - 10);
+    }
+
+    function animateTwin() {
+      handAnimT += 0.02;
+
+      if (handTracking) {
+        // Simulate hand movement (drawer to pocket trajectory)
+        const t = (Math.sin(handAnimT) + 1) / 2;
+        const segments = 8;
+        handPoints.length = 0;
+        for (let i = 0; i < segments; i++) {
+          const frac = i / (segments - 1);
+          const x = 0.55 + Math.sin(frac * Math.PI + handAnimT) * 0.2 * (1 - frac) - frac * 0.2;
+          const y = 0.5 + Math.cos(frac * Math.PI * 0.5) * 0.15;
+          handPoints.push({ x, y });
+        }
+      }
+
+      drawTwin();
+      requestAnimationFrame(animateTwin);
+    }
+    animateTwin();
+
+    // Controls
+    function toggleDrawerState(btn) {
+      drawerOpen = !drawerOpen;
+      btn.textContent = `Drawer: ${drawerOpen ? 'OPEN' : 'CLOSED'}`;
+      btn.style.background = drawerOpen ? 'var(--red)' : '';
+      btn.style.color = drawerOpen ? 'white' : '';
+      btn.style.borderColor = drawerOpen ? 'var(--red)' : '';
+
+      document.getElementById('drawerStateVal').textContent = drawerOpen ? 'OPEN' : 'CLOSED';
+      document.getElementById('drawerStateVal').className = 'ds-val ' + (drawerOpen ? 'open' : 'closed');
+
+      if (drawerOpen) {
+        document.getElementById('drawerAuthVal').textContent = 'UNAUTHORIZED';
+        document.getElementById('drawerAuthVal').className = 'ds-val unauth';
+        const now = new Date().toLocaleTimeString('en-IN', { hour12: false });
+        document.getElementById('drawerLastOpen').textContent = now;
+        showToast('🚨 DRAWER OPENED — Logging POS event check!', 'critical');
+
+        // Trigger alert overlay on feed 1
+        document.getElementById('feed1Alert').classList.add('visible');
+      } else {
+        document.getElementById('drawerAuthVal').textContent = 'AUTHORIZED';
+        document.getElementById('drawerAuthVal').className = 'ds-val auth';
+        document.getElementById('feed1Alert').classList.remove('visible');
+        showToast('✓ Drawer closed — Event recorded', 'success');
+      }
+    }
+
+    function toggleHandTrack(btn) {
+      handTracking = !handTracking;
+      btn.classList.toggle('active');
+      const overlay = document.getElementById('handTrackOverlay');
+      overlay.style.display = handTracking ? 'block' : 'none';
+      if (!handTracking) handPoints.length = 0;
+      showToast(handTracking ? '⬡ Hand tracking enabled — Polyline active' : 'Hand tracking disabled', 'info');
+    }
+
+    function resetCesiumView() {
+      drawerOpen = false;
+      handTracking = false;
+      handPoints.length = 0;
+      document.getElementById('toggleDrawer').textContent = 'Drawer: CLOSED';
+      document.getElementById('toggleDrawer').style.background = '';
+      document.getElementById('toggleDrawer').style.color = '';
+      document.getElementById('toggleDrawer').style.borderColor = '';
+      document.querySelectorAll('.cesium-toggle').forEach(b => b.classList.remove('active'));
+      document.getElementById('drawerStateVal').textContent = 'CLOSED';
+      document.getElementById('drawerStateVal').className = 'ds-val closed';
+      document.getElementById('drawerAuthVal').textContent = 'AUTHORIZED';
+      document.getElementById('drawerAuthVal').className = 'ds-val auth';
+      document.getElementById('handTrackOverlay').style.display = 'none';
+      document.getElementById('feed1Alert').classList.remove('visible');
+      showToast('3D view reset', 'info');
+    }
+
+    function toggleLive(btn) {
+      btn.classList.toggle('active');
+      showToast(btn.classList.contains('active') ? '● Live feed resumed' : 'Live feed paused', 'info');
+    }
+
+    // ── LIVE ALERT INJECTION REMOVED ──
+    // Real data fetched from backend below
+
+    // ── LIVE KPI UPDATES ─────────────────────────────────
+    setInterval(() => {
+      const el = document.getElementById('kpiTransact');
+      if (el) el.textContent = parseInt(el.textContent) + Math.floor(Math.random() * 2);
+
+      const latEl = document.getElementById('aiLatency');
+      if (latEl) latEl.textContent = Math.floor(Math.random() * 20 + 35) + 'ms';
+
+      const accEl = document.getElementById('aiAccuracy');
+      if (accEl) accEl.textContent = (93 + Math.random() * 3).toFixed(1) + '%';
+    }, 3000);
+
+    // ── TOAST ─────────────────────────────────────────────
+    function showToast(msg, type = 'info') {
+      const zone = document.getElementById('toastZone');
+      const icons = { critical: '🚨', success: '✅', info: 'ℹ', warn: '⚠' };
+      const el = document.createElement('div');
+      el.className = `toast-card ${type}`;
+      el.innerHTML = `<span class="toast-icon">${icons[type] || 'ℹ'}</span><span class="toast-msg">${msg}</span>`;
+      zone.appendChild(el);
+      setTimeout(() => el.remove(), 4000);
+    }
+
+    // Try to initialize Cesium (will fail without a valid token, fallback canvas is shown)
+    try {
+      Cesium.Ion.defaultAccessToken = 'YOUR_CESIUM_ION_TOKEN_HERE';
+      const viewer = new Cesium.Viewer('cesiumContainer', {
+        terrainProvider: Cesium.createWorldTerrain(),
+        animation: false,
+        baseLayerPicker: false,
+        fullscreenButton: false,
+        vrButton: false,
+        geocoder: false,
+        homeButton: false,
+        infoBox: false,
+        sceneModePicker: false,
+        selectionIndicator: false,
+        timeline: false,
+        navigationHelpButton: false,
+        navigationInstructionsInitiallyVisible: false,
+      });
+
+      // Store coordinates (example: Ahmedabad, Gujarat)
+      const storePos = Cesium.Cartesian3.fromDegrees(72.5714, 23.0225, 50);
+      viewer.camera.flyTo({ destination: storePos, duration: 2 });
+
+      // Counter entity
+      const counterEntity = viewer.entities.add({
+        name: 'Counter 1 — PetPooja',
+        position: storePos,
+        box: {
+          dimensions: new Cesium.Cartesian3(1.5, 0.6, 0.9),
+          material: Cesium.Color.fromCssColorString('#3B82F6').withAlpha(0.6),
+          outline: true,
+          outlineColor: Cesium.Color.fromCssColorString('#06B6D4'),
+        },
+        label: {
+          text: 'Counter 1\nRiya Sharma',
+          font: '12pt Space Mono',
+          fillColor: Cesium.Color.WHITE,
+          outlineColor: Cesium.Color.BLACK,
+          style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+          pixelOffset: new Cesium.Cartesian2(0, -80),
+        }
+      });
+
+      // Drawer entity (animated)
+      const drawerEntity = viewer.entities.add({
+        name: 'Cash Drawer',
+        position: Cesium.Cartesian3.fromDegrees(72.5714, 23.02248, 50),
+        box: {
+          dimensions: new Cesium.Cartesian3(0.4, 0.3, 0.15),
+          material: Cesium.Color.GREEN.withAlpha(0.7),
+          outline: true,
+          outlineColor: Cesium.Color.LIME,
+        }
+      });
+
+      // Hand track polyline
+      const handPolyline = viewer.entities.add({
+        name: 'Hand Track',
+        polyline: {
+          positions: Cesium.Cartesian3.fromDegreesArrayHeights([
+            72.5714, 23.0225, 52,
+            72.5715, 23.0225, 53,
+            72.5716, 23.0224, 52,
+          ]),
+          width: 3,
+          material: new Cesium.PolylineGlowMaterialProperty({
+            glowPower: 0.3,
+            color: Cesium.Color.CYAN,
+          }),
+          show: false,
+        }
+      });
+
+      // Update drawer on toggle
+      window._cesiumDrawerEntity = drawerEntity;
+      window._cesiumHandPolyline = handPolyline;
+
+      // Hide fallback since Cesium loaded
+      document.getElementById('cesiumFallback').style.display = 'none';
+
+    } catch (e) {
+      // Cesium not available — fallback canvas is shown (already visible)
+      console.log('CesiumJS: Using fallback canvas. Add your Ion token to enable 3D globe.');
+    }
+    // ── SYNC WITH BACKEND: FETCH LIVE ALERTS ──
+    const ALERT_MAP = {
+      UNAUTH: { type: 'critical', event: 'LOGICAL_ANOMALY', title: 'Unauthorized Drawer Open' },
+      POCKET: { type: 'critical', event: 'PHYSICAL_ANOMALY', title: 'Suspicious Hand Movement' },
+      DRAWER_NO_SALE: { type: 'critical', event: 'DRAWER_NO_SALE', title: 'Drawer Opened Without Sale' },
+      PROLONGED_OPEN: { type: 'warn', event: 'TEMPORAL_ANOMALY', title: 'Drawer Open — Extended Duration' },
+      MISMATCH: { type: 'warn', event: 'VELOCITY_ANOMALY', title: 'Cash Sale Velocity Spike' },
+      TRAJECTORY: { type: 'warn', event: 'TRAJECTORY_ANOMALY', title: 'Hand-to-Pocket Trajectory (AI)' },
+      VIDEO_CLIP: { type: 'info', event: 'VIDEO_CLIP', title: 'AI Video Clip Alert' },
+    };
+
+    function descForAlert(item) {
+      const rule = item.rule_violated || '';
+      const tier = item.tier_source || 'VISUAL';
+      const tierLabel = { VISUAL: 'Direct YOLO Vision', POS_LOGIC: 'POS Log Heuristic', TRAJECTORY: 'Side-Angle Trajectory', IOT_SIM: 'Simulated IoT' }[tier] || tier;
+      return rule ? `${rule} | Detected via: ${tierLabel}` : `Tier: ${tierLabel}`;
+    }
+
+    setInterval(async () => {
+      try {
+        const response = await fetch('http://127.0.0.1:8000/api/alerts/');
+        if (!response.ok) return;
+        const backendEvents = await response.json();
+
+        const mappedAlerts = backendEvents.map(item => {
+          const meta = ALERT_MAP[item.anomaly_type] || { type: 'info', event: item.anomaly_type, title: item.anomaly_type };
+          return {
+            id: item.id,
+            type: meta.type,
+            title: meta.title,
+            desc: descForAlert(item),
+            station: 'Counter 1',
+            time: new Date(item.timestamp).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+            confidence: Math.round((item.confidence || 0.5) * 100),
+            event: meta.event,
+            duration: 'N/A',
+            verified: item.is_verified,
+            tx_hash: item.blockchain_tx,
+          };
+        });
+
+        if (JSON.stringify(mappedAlerts.map(a => a.id)) !== JSON.stringify(alertsData.map(a => a.id))) {
+          const oldIds = new Set(alertsData.map(a => a.id));
+          const newAlert = mappedAlerts.find(a => !oldIds.has(a.id));
+          if (newAlert) {
+            const icon = newAlert.type === 'critical' ? '🚨' : '⚠️';
+            showToast(`${icon} ${newAlert.title}`, newAlert.type === 'critical' ? 'critical' : 'info');
+            // Flash feed overlay for critical
+            if (newAlert.type === 'critical') {
+              document.getElementById('feed1Alert')?.classList.add('visible');
+              setTimeout(() => document.getElementById('feed1Alert')?.classList.remove('visible'), 4000);
+            }
+          }
+          alertsData = mappedAlerts;
+          renderAlerts();
+        }
+      } catch (err) {
+        // Backend offline — silent
+      }
+    }, 2000);
+
+  </script>
+</body>
+
+</html>

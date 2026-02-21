@@ -1,0 +1,1297 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>店铺盗窃行为监测系统</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- 添加Bootstrap图标库 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            padding-top: 20px;
+            font-family: Arial, sans-serif;
+        }
+        .main-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .upload-container {
+            border: 2px dashed #ddd;
+            border-radius: 10px;
+            padding: 30px 20px;
+            text-align: center;
+            background-color: #f9f9f9;
+            transition: all 0.3s ease;
+        }
+        .upload-container:hover {
+            border-color: #007bff;
+            background-color: #f0f7ff;
+        }
+        .upload-icon {
+            font-size: 3rem;
+            color: #007bff;
+            margin-bottom: 15px;
+        }
+        .file-requirements {
+            margin-top: 20px;
+            color: #6c757d;
+        }
+        .alert {
+            margin-top: 20px;
+        }
+        .feature-box {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            transition: transform 0.3s ease;
+        }
+        .feature-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        .feature-icon {
+            font-size: 2rem;
+            color: #0d6efd;
+            margin-bottom: 15px;
+        }
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+            overflow: hidden;
+            background-color: #000;
+            border-radius: 5px;
+        }
+        .video-container video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        .image-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .image-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        .behavior-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .behavior-tag {
+            display: inline-block;
+            padding: 3px 8px;
+            margin-right: 5px;
+            margin-bottom: 5px;
+            border-radius: 12px;
+            background-color: #f8d7da;
+            color: #721c24;
+            font-size: 0.8rem;
+        }
+        .control-panel {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .results-container {
+            display: none;
+        }
+        .nav-tabs .nav-link {
+            font-weight: 600;
+        }
+        .status-indicator {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 5px;
+        }
+        .status-green {
+            background-color: #28a745;
+        }
+        .status-red {
+            background-color: #dc3545;
+        }
+        .status-yellow {
+            background-color: #ffc107;
+        }
+        /* 视频控制样式 */
+        .video-controls {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 0 0 5px 5px;
+        }
+        #videoProgress {
+            cursor: pointer;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        #videoProgressBar {
+            transition: width 0.1s linear;
+        }
+        #timeDisplay {
+            font-family: monospace;
+            font-size: 0.9rem;
+            width: 110px;
+            text-align: right;
+        }
+        #playPauseBtn {
+            width: 80px;
+        }
+        .behavior-count {
+            font-size: 24px;
+            font-weight: bold;
+            color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <div class="container main-container">
+        <div class="row mb-4">
+            <div class="col-12 text-center">
+                <h1 class="display-4">店铺盗窃行为监测系统</h1>
+                <p class="lead">使用先进的人工智能技术识别图片和视频中的可疑盗窃行为</p>
+            </div>
+        </div>
+
+        <!-- 警告消息 -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div id="alerts-container">
+                    {% with messages = get_flashed_messages() %}
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+                </div>
+            </div>
+        </div>
+
+        <!-- 主要内容tabs -->
+        <ul class="nav nav-tabs mb-4" id="mainTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="upload-tab" data-bs-toggle="tab" data-bs-target="#upload-content" type="button" role="tab" aria-controls="upload-content" aria-selected="true">上传文件</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="results-tab" data-bs-toggle="tab" data-bs-target="#results-content" type="button" role="tab" aria-controls="results-content" aria-selected="false">检测结果</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="features-tab" data-bs-toggle="tab" data-bs-target="#features-content" type="button" role="tab" aria-controls="features-content" aria-selected="false">功能介绍</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="about-tab" data-bs-toggle="tab" data-bs-target="#about-content" type="button" role="tab" aria-controls="about-content" aria-selected="false">关于系统</button>
+            </li>
+        </ul>
+
+        <!-- Tab内容 -->
+        <div class="tab-content" id="mainTabsContent">
+            <!-- 上传文件内容 -->
+            <div class="tab-pane fade show active" id="upload-content" role="tabpanel" aria-labelledby="upload-tab">
+                <div class="row">
+                    <div class="col-md-8 mx-auto">
+                        <div class="upload-container">
+                            <div class="upload-icon">
+                                <i class="bi bi-cloud-arrow-up"></i>📤
+                            </div>
+                            <h3>上传图片或视频文件</h3>
+                            <p>拖放文件到此处或点击选择文件</p>
+                            
+                            <div class="mb-3">
+                                <input class="form-control" type="file" id="file" name="file" accept=".jpg,.jpeg,.png,.mp4,.avi,.mov" style="display: none;">
+                                <button type="button" class="btn btn-primary" id="select-file-btn">选择文件</button>
+                            </div>
+                            <div id="file-info" class="mb-3" style="display: none;">
+                                <span id="file-name"></span>
+                                <button type="button" class="btn btn-sm btn-outline-danger" id="clear-file-btn">清除</button>
+                            </div>
+                            <div>
+                                <button type="button" class="btn btn-success" id="upload-btn" disabled>开始分析</button>
+                            </div>
+                            
+                            <div class="file-requirements mt-3">
+                                <small>支持的格式: JPG, JPEG, PNG, MP4, AVI, MOV<br>
+                                最大文件大小: 100MB</small>
+                            </div>
+                            
+                            <!-- 处理进度 -->
+                            <div id="processing-status" class="mt-4" style="display: none;">
+                                <div class="progress mb-2">
+                                    <div id="upload-progress-bar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                                <p id="processing-message">正在处理文件...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 检测结果内容 -->
+            <div class="tab-pane fade" id="results-content" role="tabpanel" aria-labelledby="results-tab">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="alert alert-info" id="no-results-message">
+                            请先上传并处理图片或视频以查看结果
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 检测结果区域 -->
+                <div class="results-container" id="results-area">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="control-panel mb-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h4 class="mb-0" id="result-title">分析结果</h4>
+                                    <div>
+                                        <a href="#" class="btn btn-sm btn-outline-primary" id="refresh-result-btn">刷新结果</a>
+                                        <a href="/" class="btn btn-sm btn-outline-danger">新分析</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 图像结果 -->
+                    <div id="image-result-container" class="results-container">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="card mb-4">
+                                    <div class="card-header">原始图像</div>
+                                    <div class="card-body p-0">
+                                        <div class="image-container">
+                                            <img id="original-image" src="" alt="原始图像">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card mb-4">
+                                    <div class="card-header">检测结果</div>
+                                    <div class="card-body p-0">
+                                        <div class="image-container">
+                                            <img id="result-image" src="" alt="检测结果">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="card">
+                                    <div class="card-header">检测到的行为</div>
+                                    <div class="card-body">
+                                        <div id="image-behaviors-container">
+                                            <!-- 行为列表将动态添加 -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 视频结果 -->
+                    <div id="video-result-container" style="display: none;">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="card mb-4">
+                                    <div class="card-header bg-dark text-white">
+                                        <h5 class="card-title mb-0">分析结果视频</h5>
+                                    </div>
+                                    <div class="card-body p-0">
+                                        <div class="video-container">
+                                            <video id="result-video" class="w-100" controls preload="auto" playsinline>
+                                                <source src="" type="video/mp4">
+                                                <source src="" type="video/avi">
+                                                <source src="" type="video/x-msvideo">
+                                                您的浏览器不支持视频播放
+                                            </video>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- 行为列表 -->
+                                <div class="card">
+                                    <div class="card-header bg-dark text-white">
+                                        <h5 class="card-title mb-0">可疑行为列表</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="behavior-list" id="video-behaviors-container">
+                                            <table class="table table-striped">
+                                                <thead>
+                                                    <tr>
+                                                        <th>时间点</th>
+                                                        <th>行为类型</th>
+                                                        <th>置信度</th>
+                                                        <th>操作</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="video-behaviors-table">
+                                                    <!-- 行为表格行将动态添加 -->
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 右侧结果摘要部分 -->
+                            <div class="col-md-4">
+                                <div class="card mb-4">
+                                    <div class="card-header bg-danger text-white">
+                                        <h5 class="card-title mb-0">检测摘要</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-6 text-center">
+                                                <div class="behavior-count" id="behaviors-count">0</div>
+                                                <div>可疑行为总数</div>
+                                            </div>
+                                            <div class="col-6 text-center">
+                                                <div class="behavior-count" id="max-confidence">0%</div>
+                                                <div>最高置信度</div>
+                                            </div>
+                                        </div>
+                                        
+                                        <hr>
+                                        
+                                        <h6>检测到的行为类型:</h6>
+                                        <div id="behavior-types-container">
+                                            <!-- 行为类型标签将动态添加 -->
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="card">
+                                    <div class="card-header bg-dark text-white">
+                                        <h5 class="card-title mb-0">原始视频</h5>
+                                    </div>
+                                    <div class="card-body p-0">
+                                        <div class="video-container">
+                                            <video id="original-video" controls preload="auto" playsinline>
+                                                <source src="" type="video/mp4">
+                                                <source src="" type="video/avi">
+                                                <source src="" type="video/x-msvideo">
+                                                您的浏览器不支持视频播放
+                                            </video>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 功能介绍内容 -->
+            <div class="tab-pane fade" id="features-content" role="tabpanel" aria-labelledby="features-tab">
+                <div class="row mb-4">
+                    <div class="col-12 text-center">
+                        <h2 class="mb-4">可检测的可疑行为特征</h2>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="feature-box">
+                            <div class="feature-icon">🧥</div>
+                            <h4>遮挡类行为</h4>
+                            <ul>
+                                <li>用外套/雨伞遮挡商品区域</li>
+                                <li>反复调整手提袋/婴儿位置</li>
+                                <li>背对摄像头整理包内物品</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="feature-box">
+                            <div class="feature-icon">👀</div>
+                            <h4>姿态和轨迹异常</h4>
+                            <ul>
+                                <li>同一货架前反复折返</li>
+                                <li>手肘内收角度异常</li>
+                                <li>肩部不自然隆起</li>
+                                <li>突然蹲下伴随手臂后缩</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="feature-box">
+                            <div class="feature-icon">📦</div>
+                            <h4>商品处理异常</h4>
+                            <ul>
+                                <li>撕标签动作</li>
+                                <li>拆包装抖动</li>
+                                <li>空盒复原</li>
+                                <li>快速藏匿物品</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                检测系统说明
+                            </div>
+                            <div class="card-body">
+                                <p>本系统使用人工智能技术实时检测店铺中的可疑盗窃行为，结合YOLOv8目标检测与行为分析算法，可以精确识别多种常见的盗窃行为模式。</p>
+                                <p>系统支持以下功能：</p>
+                                <ul>
+                                    <li>图像分析 - 对单帧图像进行盗窃行为检测</li>
+                                    <li>视频分析 - 对视频进行连续帧检测，追踪可疑行为时间线</li>
+                                    <li>多类型行为识别 - 可识别多种不同类型的可疑行为</li>
+                                    <li>行为概率评估 - 为每种检测到的行为提供可信度评分</li>
+                                </ul>
+                                <p>所有分析结果均可导出，包括带有标注的图像和视频，以及可疑行为的详细时间戳和描述。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 关于系统内容 -->
+            <div class="tab-pane fade" id="about-content" role="tabpanel" aria-labelledby="about-tab">
+                <div class="row mb-5">
+                    <div class="col-12 text-center">
+                        <h2 class="display-5">关于系统</h2>
+                        <p class="lead">店铺盗窃行为监测系统是一个基于AI的安防工具，能够识别图像和视频中的可疑盗窃行为特征</p>
+                    </div>
+                </div>
+
+                <!-- 主要内容 -->
+                <div class="row mb-5">
+                    <div class="col-lg-10 mx-auto">
+                        <div class="card mb-4">
+                            <div class="card-header bg-primary text-white">
+                                <h4 class="mb-0">系统概述</h4>
+                            </div>
+                            <div class="card-body">
+                                <p>本系统结合了先进的计算机视觉技术和专业的盗窃行为分析，旨在帮助零售商店、超市和商场提高安全水平，减少商品损失。</p>
+                                <p>系统可以分析静态图像和视频录像，自动识别出多种可疑的盗窃行为特征，包括遮挡类动作、轨迹异常、姿态异常和商品处理异常等。</p>
+                                <p>系统支持两种运行模式：</p>
+                                <ul>
+                                    <li><strong>窗体应用模式</strong>：以桌面应用形式运行，适合离线使用</li>
+                                    <li><strong>Web应用模式</strong>：以网页形式运行，适合多人协作使用</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="card mb-4">
+                            <div class="card-header bg-primary text-white">
+                                <h4 class="mb-0">主要功能</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h5>图像分析功能</h5>
+                                        <ul>
+                                            <li>人物、物品检测与分类</li>
+                                            <li>遮挡行为检测（用衣物遮挡等）</li>
+                                            <li>姿态异常检测（手肘内收等）</li>
+                                            <li>商品处理异常检测（撕标签等）</li>
+                                        </ul>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h5>视频分析功能</h5>
+                                        <ul>
+                                            <li>人物跟踪与轨迹分析</li>
+                                            <li>商品交互行为分析</li>
+                                            <li>时序行为模式识别</li>
+                                            <li>可疑行为标记与时间轴展示</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card mb-4">
+                            <div class="card-header bg-primary text-white">
+                                <h4 class="mb-0">技术实现</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-4 text-center">
+                                    <span class="badge bg-primary p-2 m-1">YOLOv11n</span>
+                                    <span class="badge bg-primary p-2 m-1">PyTorch</span>
+                                    <span class="badge bg-primary p-2 m-1">OpenCV</span>
+                                    <span class="badge bg-primary p-2 m-1">Flask</span>
+                                    <span class="badge bg-primary p-2 m-1">Tkinter</span>
+                                    <span class="badge bg-primary p-2 m-1">Ultralytics</span>
+                                    <span class="badge bg-primary p-2 m-1">计算机视觉</span>
+                                    <span class="badge bg-primary p-2 m-1">行为分析</span>
+                                </div>
+                                <p>本系统利用深度学习模型YOLOv11n进行物体检测，结合自定义的行为分析算法识别可疑盗窃行为特征。系统采用模块化设计，将图像和视频的处理逻辑分离，既提高了代码的可维护性，又保证了功能的完整性。</p>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header bg-primary text-white">
+                                <h4 class="mb-0">使用说明</h4>
+                            </div>
+                            <div class="card-body">
+                                <h5>运行系统</h5>
+                                <div class="bg-light p-3 rounded mb-3">
+                                    <code>
+                                        # 以窗体模式运行（默认）<br>
+                                        python run.py<br><br>
+                                        # 以Web模式运行<br>
+                                        python run.py --web<br><br>
+                                        # 显式指定窗体模式<br>
+                                        python run.py --gui
+                                    </code>
+                                </div>
+                                <p>如需了解更多详细使用说明，请参阅项目中的README.md文件。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 页脚 -->
+                <footer class="mt-5 text-center text-muted">
+                    <p>店铺盗窃行为监测系统 &copy; 2025</p>
+                </footer>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 文件上传相关
+            const fileInput = document.getElementById('file');
+            const selectFileBtn = document.getElementById('select-file-btn');
+            const clearFileBtn = document.getElementById('clear-file-btn');
+            const fileInfo = document.getElementById('file-info');
+            const fileName = document.getElementById('file-name');
+            const uploadBtn = document.getElementById('upload-btn');
+            const processingStatus = document.getElementById('processing-status');
+            const processingMessage = document.getElementById('processing-message');
+            const uploadProgressBar = document.getElementById('upload-progress-bar');
+            
+            // Tab切换相关
+            const resultTab = document.getElementById('results-tab');
+            
+            // 存储当前处理结果数据
+            let currentResultData = null;
+            
+            // 刷新按钮点击事件
+            document.getElementById('refresh-result-btn').addEventListener('click', function(e) {
+                e.preventDefault();
+                if (currentResultData && currentResultData.type === 'video') {
+                    // 显示加载指示器
+                    const resultVideoContainer = document.querySelector('.video-container:first-child');
+                    
+                    // 添加加载指示器
+                    const loadingIndicator = document.createElement('div');
+                    loadingIndicator.className = 'position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center bg-dark bg-opacity-50';
+                    loadingIndicator.innerHTML = '<div class="spinner-border text-light" role="status"><span class="visually-hidden">Loading...</span></div>';
+                    resultVideoContainer.appendChild(loadingIndicator);
+                    
+                    // 获取当前时间戳
+                    const timestamp = new Date().getTime();
+                    
+                    // 直接获取视频元素
+                    const resultVideo = document.getElementById('result-video');
+                    const originalVideo = document.getElementById('original-video');
+                    
+                    console.log("刷新前的原始视频地址:", originalVideo.querySelector('source').src);
+                    console.log("刷新前的结果视频地址:", resultVideo.querySelector('source').src);
+                    
+                    // 暂存播放状态
+                    const wasPlaying = !resultVideo.paused;
+                    const currentTime = resultVideo.currentTime;
+                    
+                    // 直接更新视频URL而不是重建视频元素
+                    Array.from(resultVideo.querySelectorAll('source')).forEach(source => {
+                        let baseUrl = currentResultData.result;
+                        if (baseUrl) {
+                            // 移除旧的查询参数
+                            baseUrl = baseUrl.split('?')[0];
+                            source.src = baseUrl + '?t=' + timestamp;
+                        }
+                    });
+                    
+                    Array.from(originalVideo.querySelectorAll('source')).forEach(source => {
+                        let baseUrl = currentResultData.original;
+                        if (baseUrl) {
+                            // 移除旧的查询参数
+                            baseUrl = baseUrl.split('?')[0];
+                            source.src = baseUrl + '?t=' + timestamp;
+                        }
+                    });
+                    
+                    // 打印更新后的地址
+                    console.log("刷新后的原始视频地址:", originalVideo.querySelector('source').src);
+                    console.log("刷新后的结果视频地址:", resultVideo.querySelector('source').src);
+                    
+                    // 加载视频
+                    resultVideo.load();
+                    originalVideo.load();
+                    
+                    // 添加调试信息 - 打印视频元素的src属性
+                    console.log("原始视频元素sources:", Array.from(originalVideo.querySelectorAll('source')).map(s => s.src));
+                    console.log("结果视频元素sources:", Array.from(resultVideo.querySelectorAll('source')).map(s => s.src));
+                    
+                    // 设置加载完成后恢复播放
+                    if (wasPlaying) {
+                        resultVideo.oncanplay = function() {
+                            resultVideo.currentTime = currentTime;
+                            resultVideo.play();
+                            resultVideo.oncanplay = null;
+                        };
+                    }
+                    
+                    // 移除加载指示器
+                    setTimeout(() => {
+                        if (loadingIndicator.parentNode) {
+                            loadingIndicator.remove();
+                        }
+                    }, 1000);
+                }
+            });
+            
+            // 加载示例文件
+            loadExamples();
+            
+            // 选择文件按钮点击事件
+            selectFileBtn.addEventListener('click', function() {
+                fileInput.click();
+            });
+            
+            // 文件选择改变事件
+            fileInput.addEventListener('change', function() {
+                if (fileInput.files.length > 0) {
+                    const file = fileInput.files[0];
+                    fileName.textContent = file.name;
+                    fileInfo.style.display = 'block';
+                    uploadBtn.disabled = false;
+                } else {
+                    fileInfo.style.display = 'none';
+                    uploadBtn.disabled = true;
+                }
+            });
+            
+            // 清除文件按钮点击事件
+            clearFileBtn.addEventListener('click', function() {
+                fileInput.value = '';
+                fileInfo.style.display = 'none';
+                uploadBtn.disabled = true;
+            });
+            
+            // 开始分析按钮点击事件
+            uploadBtn.addEventListener('click', function() {
+                if (fileInput.files.length === 0) return;
+                
+                const file = fileInput.files[0];
+                uploadAndProcessFile(file);
+            });
+            
+            // 拖放文件功能
+            const uploadContainer = document.querySelector('.upload-container');
+            
+            uploadContainer.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                uploadContainer.style.borderColor = '#007bff';
+                uploadContainer.style.backgroundColor = '#f0f7ff';
+            });
+            
+            uploadContainer.addEventListener('dragleave', function() {
+                uploadContainer.style.borderColor = '#ddd';
+                uploadContainer.style.backgroundColor = '#f9f9fa';
+            });
+            
+            uploadContainer.addEventListener('drop', function(e) {
+                e.preventDefault();
+                uploadContainer.style.borderColor = '#ddd';
+                uploadContainer.style.backgroundColor = '#f9f9fa';
+                
+                if (e.dataTransfer.files.length > 0) {
+                    fileInput.files = e.dataTransfer.files;
+                    const file = fileInput.files[0];
+                    fileName.textContent = file.name;
+                    fileInfo.style.display = 'block';
+                    uploadBtn.disabled = false;
+                }
+            });
+            
+            // 处理示例文件点击
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('example-item')) {
+                    const exampleFilename = e.target.getAttribute('data-filename');
+                    processExampleFile(exampleFilename);
+                }
+            });
+            
+            // 函数：上传并处理文件
+            function uploadAndProcessFile(file) {
+                // 显示处理状态
+                processingStatus.style.display = 'block';
+                processingMessage.textContent = '正在分析文件...';
+                uploadProgressBar.style.width = '0%';
+                
+                const formData = new FormData();
+                formData.append('file', file);
+                
+                // 创建 XHR 请求
+                const xhr = new XMLHttpRequest();
+                
+                // 上传进度监听
+                xhr.upload.addEventListener('progress', function(e) {
+                    if (e.lengthComputable) {
+                        const percentComplete = Math.round((e.loaded / e.total) * 100);
+                        uploadProgressBar.style.width = percentComplete + '%';
+                        uploadProgressBar.setAttribute('aria-valuenow', percentComplete);
+                    }
+                });
+                
+                // 请求完成事件
+                xhr.addEventListener('load', function() {
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        // 上传成功
+                        processingMessage.textContent = '文件正在处理中...';
+                        uploadProgressBar.style.width = '100%';
+                        
+                        try {
+                            const result = JSON.parse(xhr.responseText);
+                            showProcessingResult(result);
+                        } catch (e) {
+                            showProcessingError('处理响应失败: ' + e.message);
+                        }
+                    } else {
+                        // 上传失败
+                        let errorMessage = '上传失败';
+                        try {
+                            const response = JSON.parse(xhr.responseText);
+                            if (response.error) {
+                                errorMessage = response.error;
+                            }
+                        } catch (e) {
+                            errorMessage = '请求错误: ' + xhr.status;
+                        }
+                        showProcessingError(errorMessage);
+                    }
+                });
+                
+                // 请求错误事件
+                xhr.addEventListener('error', function() {
+                    showProcessingError('网络错误，上传失败');
+                });
+                
+                // 开始上传
+                xhr.open('POST', '/upload');
+                xhr.send(formData);
+            }
+            
+            // 函数：处理示例文件
+            function processExampleFile(filename) {
+                // 显示处理状态
+                processingStatus.style.display = 'block';
+                processingMessage.textContent = '正在处理示例文件...';
+                uploadProgressBar.style.width = '50%';
+                
+                // 创建 XHR 请求
+                const xhr = new XMLHttpRequest();
+                
+                // 请求完成事件
+                xhr.addEventListener('load', function() {
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        // 处理成功
+                        uploadProgressBar.style.width = '100%';
+                        
+                        try {
+                            const result = JSON.parse(xhr.responseText);
+                            showProcessingResult(result);
+                        } catch (e) {
+                            showProcessingError('处理响应失败: ' + e.message);
+                        }
+                    } else {
+                        // 处理失败
+                        let errorMessage = '处理失败';
+                        try {
+                            const response = JSON.parse(xhr.responseText);
+                            if (response.error) {
+                                errorMessage = response.error;
+                            }
+                        } catch (e) {
+                            errorMessage = '请求错误: ' + xhr.status;
+                        }
+                        showProcessingError(errorMessage);
+                    }
+                });
+                
+                // 请求错误事件
+                xhr.addEventListener('error', function() {
+                    showProcessingError('网络错误，处理失败');
+                });
+                
+                // 开始处理
+                xhr.open('POST', '/api/process_example/' + filename);
+                xhr.send();
+            }
+            
+            // 函数：加载示例文件
+            function loadExamples() {
+                const examplesContainer = document.getElementById('examples-container');
+                
+                fetch('/api/examples')
+                    .then(response => response.json())
+                    .then(data => {
+                        examplesContainer.innerHTML = '';
+                        
+                        // 创建示例文件展示区
+                        const row = document.createElement('div');
+                        row.className = 'row';
+                        
+                        // 图像示例
+                        if (data.images && data.images.length > 0) {
+                            const imageCol = document.createElement('div');
+                            imageCol.className = 'col-md-6';
+                            
+                            const imageCard = document.createElement('div');
+                            imageCard.className = 'card';
+                            
+                            const imageCardHeader = document.createElement('div');
+                            imageCardHeader.className = 'card-header';
+                            imageCardHeader.textContent = '图像示例';
+                            
+                            const imageCardBody = document.createElement('div');
+                            imageCardBody.className = 'card-body';
+                            
+                            const imageList = document.createElement('div');
+                            imageList.className = 'row row-cols-2 row-cols-md-3 g-2';
+                            
+                            data.images.forEach(image => {
+                                const col = document.createElement('div');
+                                col.className = 'col';
+                                
+                                const imageItem = document.createElement('div');
+                                imageItem.className = 'card h-100 example-item';
+                                imageItem.setAttribute('data-filename', image);
+                                imageItem.style.cursor = 'pointer';
+                                
+                                const img = document.createElement('img');
+                                img.src = '/static/examples/' + image;
+                                img.className = 'card-img-top';
+                                img.alt = image;
+                                img.style.height = '100px';
+                                img.style.objectFit = 'cover';
+                                
+                                const cardBody = document.createElement('div');
+                                cardBody.className = 'card-body p-2';
+                                
+                                const cardTitle = document.createElement('p');
+                                cardTitle.className = 'card-text small text-truncate';
+                                cardTitle.textContent = image;
+                                
+                                cardBody.appendChild(cardTitle);
+                                imageItem.appendChild(img);
+                                imageItem.appendChild(cardBody);
+                                col.appendChild(imageItem);
+                                imageList.appendChild(col);
+                            });
+                            
+                            imageCardBody.appendChild(imageList);
+                            imageCard.appendChild(imageCardHeader);
+                            imageCard.appendChild(imageCardBody);
+                            imageCol.appendChild(imageCard);
+                            row.appendChild(imageCol);
+                        }
+                        
+                        // 视频示例
+                        if (data.videos && data.videos.length > 0) {
+                            const videoCol = document.createElement('div');
+                            videoCol.className = 'col-md-6';
+                            
+                            const videoCard = document.createElement('div');
+                            videoCard.className = 'card';
+                            
+                            const videoCardHeader = document.createElement('div');
+                            videoCardHeader.className = 'card-header';
+                            videoCardHeader.textContent = '视频示例';
+                            
+                            const videoCardBody = document.createElement('div');
+                            videoCardBody.className = 'card-body';
+                            
+                            const videoList = document.createElement('div');
+                            videoList.className = 'list-group';
+                            
+                            data.videos.forEach(video => {
+                                const videoItem = document.createElement('a');
+                                videoItem.href = '#';
+                                videoItem.className = 'list-group-item list-group-item-action example-item';
+                                videoItem.setAttribute('data-filename', video);
+                                
+                                const icon = document.createElement('i');
+                                icon.className = 'bi bi-film me-2';
+                                icon.textContent = '🎬';
+                                
+                                videoItem.appendChild(icon);
+                                videoItem.appendChild(document.createTextNode(video));
+                                videoList.appendChild(videoItem);
+                            });
+                            
+                            videoCardBody.appendChild(videoList);
+                            videoCard.appendChild(videoCardHeader);
+                            videoCard.appendChild(videoCardBody);
+                            videoCol.appendChild(videoCard);
+                            row.appendChild(videoCol);
+                        }
+                        
+                        examplesContainer.appendChild(row);
+                    })
+                    .catch(error => {
+                        examplesContainer.innerHTML = '<div class="alert alert-danger">加载示例文件失败: ' + error.message + '</div>';
+                    });
+            }
+            
+            // 函数：显示处理结果
+            function showProcessingResult(result) {
+                // 存储结果数据以便后续刷新
+                currentResultData = result;
+                
+                // 隐藏处理状态
+                processingStatus.style.display = 'none';
+                
+                // 显示结果tab
+                resultTab.click();
+                
+                // 隐藏"无结果"消息
+                document.getElementById('no-results-message').style.display = 'none';
+                // 显示结果区域
+                document.getElementById('results-area').style.display = 'block';
+                
+                // 根据结果类型显示对应的结果
+                if (result.type === 'image') {
+                    showImageResult(result);
+                } else if (result.type === 'video') {
+                    showVideoResult(result);
+                }
+            }
+            
+            // 函数：显示处理错误
+            function showProcessingError(message) {
+                processingStatus.style.display = 'block';
+                processingMessage.innerHTML = '<div class="alert alert-danger">' + message + '</div>';
+                uploadProgressBar.classList.remove('bg-primary');
+                uploadProgressBar.classList.add('bg-danger');
+            }
+        });
+
+        // 显示图像结果
+        function showImageResult(data) {
+            // 设置图像结果容器显示
+            document.getElementById('image-result-container').style.display = 'block';
+            document.getElementById('video-result-container').style.display = 'none';
+            
+            // 设置图像源
+            document.getElementById('original-image').src = data.original;
+            document.getElementById('result-image').src = data.result;
+            
+            // 设置行为列表
+            const behaviorsContainer = document.getElementById('image-behaviors-container');
+            behaviorsContainer.innerHTML = '';
+            
+            if (data.behaviors && data.behaviors.length > 0) {
+                const list = document.createElement('ul');
+                list.className = 'list-group';
+                
+                data.behaviors.forEach(behavior => {
+                    const item = document.createElement('li');
+                    item.className = 'list-group-item';
+                    
+                    const statusIndicator = document.createElement('span');
+                    statusIndicator.className = 'status-indicator ' + 
+                        (behavior.confidence > 0.7 ? 'status-red' : 
+                         behavior.confidence > 0.4 ? 'status-yellow' : 'status-green');
+                    
+                    item.appendChild(statusIndicator);
+                    item.appendChild(document.createTextNode(
+                        `${behavior.type}: ${behavior.description} (可信度: ${(behavior.confidence * 100).toFixed(1)}%)`
+                    ));
+                    
+                    list.appendChild(item);
+                });
+                
+                behaviorsContainer.appendChild(list);
+            } else {
+                behaviorsContainer.innerHTML = '<div class="alert alert-info">未检测到可疑行为</div>';
+            }
+        }
+
+        // 显示视频结果
+        function showVideoResult(data) {
+            console.log("视频结果数据:", data);  // 添加调试信息
+            console.log("原始视频路径:", data.original);  // 添加调试信息
+            console.log("结果视频路径:", data.result);  // 添加调试信息
+            
+            // 标准化路径格式 - 统一使用正斜杠
+            if (data.result) {
+                data.result = data.result.replace(/\\/g, '/');
+                // 确保有前导斜杠
+                if (!data.result.startsWith('/')) {
+                    data.result = '/' + data.result;
+                }
+                console.log("标准化后的结果视频路径:", data.result);
+                
+                // 检查是否是uploads目录下的文件，如果是则使用web-video路由
+                if (data.result.includes('/static/uploads/')) {
+                    // 获取文件名
+                    let filename = data.result.split('/').pop();
+                    // 转换为web-video路由
+                    data.web_result = `/web-video/${filename}`;
+                    console.log("Web视频路径:", data.web_result);
+                }
+            }
+            
+            if (data.original) {
+                data.original = data.original.replace(/\\/g, '/');
+                // 确保有前导斜杠
+                if (!data.original.startsWith('/')) {
+                    data.original = '/' + data.original;
+                }
+                console.log("标准化后的原始视频路径:", data.original);
+            }
+            
+            // 验证视频路径
+            if (!data.result) {
+                console.error("结果视频路径无效");
+                // 显示错误消息
+                const errorContainer = document.createElement('div');
+                errorContainer.className = 'alert alert-danger mt-3';
+                errorContainer.textContent = '结果视频路径无效，无法播放视频';
+                document.getElementById('video-result-container').appendChild(errorContainer);
+                
+                // 设置超时自动移除错误消息
+                setTimeout(() => {
+                    if (errorContainer.parentNode) {
+                        errorContainer.remove();
+                    }
+                }, 5000);
+                return;
+            }
+            
+            // 设置视频结果容器显示
+            document.getElementById('image-result-container').style.display = 'none';
+            document.getElementById('video-result-container').style.display = 'block';
+            
+            // 设置视频源
+            const originalVideo = document.getElementById('original-video');
+            const resultVideo = document.getElementById('result-video');
+            
+            // 移除事件监听器以避免重复添加
+            const oldErrorHandler = resultVideo.onerror;
+            const oldLoadedHandler = resultVideo.onloadeddata;
+            resultVideo.onerror = null;
+            resultVideo.onloadeddata = null;
+            
+            // 清除现有源
+            originalVideo.innerHTML = '';
+            resultVideo.innerHTML = '';
+            
+            // 移除任何现有的错误消息
+            const existingErrorMsg = resultVideo.parentNode.querySelector('.alert');
+            if (existingErrorMsg) existingErrorMsg.remove();
+            
+            // 添加时间戳避免缓存问题
+            const timestamp = new Date().getTime();
+            
+            // 添加MP4源（优先）
+            const originalMp4Source = document.createElement('source');
+            originalMp4Source.src = data.original + '?t=' + timestamp;
+            originalMp4Source.type = 'video/mp4';
+            originalVideo.appendChild(originalMp4Source);
+            
+            const resultMp4Source = document.createElement('source');
+            // 优先使用web-video路由处理后的视频
+            resultMp4Source.src = (data.web_result || data.result) + '?t=' + timestamp;
+            resultMp4Source.type = 'video/mp4';
+            resultVideo.appendChild(resultMp4Source);
+            
+            // 添加AVI源（备用）
+            const originalAviSource = document.createElement('source');
+            originalAviSource.src = data.original + '?t=' + timestamp;
+            originalAviSource.type = 'video/avi';
+            originalVideo.appendChild(originalAviSource);
+            
+            const resultAviSource = document.createElement('source');
+            resultAviSource.src = data.result + '?t=' + timestamp;
+            resultAviSource.type = 'video/avi';
+            resultVideo.appendChild(resultAviSource);
+            
+            // 添加X-MSVideo源（另一种AVI识别方式）
+            const originalMSVideoSource = document.createElement('source');
+            originalMSVideoSource.src = data.original + '?t=' + timestamp;
+            originalMSVideoSource.type = 'video/x-msvideo';
+            originalVideo.appendChild(originalMSVideoSource);
+            
+            const resultMSVideoSource = document.createElement('source');
+            resultMSVideoSource.src = data.result + '?t=' + timestamp;
+            resultMSVideoSource.type = 'video/x-msvideo';
+            resultVideo.appendChild(resultMSVideoSource);
+            
+            // 加载视频
+            originalVideo.load();
+            resultVideo.load();
+            
+            // 添加特定错误处理
+            resultVideo.onerror = function(e) {
+                console.error('视频加载错误事件:', e);
+                console.error('视频加载错误详情:', resultVideo.error);
+                console.error('错误代码:', resultVideo.error ? resultVideo.error.code : 'unknown');
+                console.error('错误消息:', resultVideo.error ? resultVideo.error.message : 'unknown');
+                
+                // 移除任何现有的错误消息
+                const existingErrorMsg = resultVideo.parentNode.querySelector('.alert');
+                if (existingErrorMsg) existingErrorMsg.remove();
+                
+                // 显示错误消息
+                const errorMsg = document.createElement('div');
+                errorMsg.className = 'alert alert-warning text-center mt-2';
+                errorMsg.innerHTML = '视频加载失败，正在尝试直接访问视频文件...';
+                resultVideo.parentNode.appendChild(errorMsg);
+                
+                // 尝试直接访问视频，使用多种可能的URL格式
+                setTimeout(() => {
+                    try {
+                        // 获取文件名
+                        const filename = data.result.split('/').pop();
+                        
+                        // 生成可能的URL列表
+                        const possibleUrls = [
+                            data.result + '?t=' + new Date().getTime(),
+                            '/static/output/' + filename + '?t=' + new Date().getTime(),
+                            `/video/${filename}?t=` + new Date().getTime()
+                        ];
+                        
+                        console.log("尝试以下URL列表:", possibleUrls);
+                        
+                        // 创建一个包含所有可能URL的链接列表
+                        let linkHtml = '<div class="mt-3 mb-3">尝试直接访问以下链接:</div><ul class="list-group">';
+                        possibleUrls.forEach(url => {
+                            linkHtml += `<li class="list-group-item"><a href="${url}" target="_blank">${url.split('?')[0]}</a></li>`;
+                        });
+                        linkHtml += '</ul>';
+                        
+                        errorMsg.innerHTML = linkHtml;
+                        
+                        // 自动尝试第一个URL
+                        const iframe = document.createElement('iframe');
+                        iframe.src = possibleUrls[0];
+                        iframe.className = "w-100 h-100 position-absolute top-0 start-0";
+                        iframe.style.border = "none";
+                        resultVideo.parentNode.appendChild(iframe);
+                    } catch (err) {
+                        console.error("处理视频链接失败:", err);
+                        errorMsg.innerHTML = '无法加载视频，请检查服务器日志。';
+                    }
+                }, 2000);
+            };
+            
+            // 添加视频加载成功事件处理
+            resultVideo.onloadeddata = function() {
+                console.log('视频加载成功');
+                // 移除任何错误消息
+                const errorMsg = resultVideo.parentNode.querySelector('.alert');
+                if (errorMsg) errorMsg.remove();
+            };
+            
+            // 添加调试信息
+            console.log("原始视频元素sources:", Array.from(originalVideo.querySelectorAll('source')).map(s => s.src));
+            console.log("结果视频元素sources:", Array.from(resultVideo.querySelectorAll('source')).map(s => s.src));
+            
+            // 设置摘要数据
+            document.getElementById('behaviors-count').textContent = data.behaviors_count || 0;
+            document.getElementById('max-confidence').textContent = 
+                data.max_confidence ? `${(data.max_confidence * 100).toFixed(1)}%` : '0%';
+            
+            // 设置行为类型标签
+            const typesContainer = document.getElementById('behavior-types-container');
+            typesContainer.innerHTML = '';
+            
+            if (data.behavior_types && data.behavior_types.length > 0) {
+                data.behavior_types.forEach(type => {
+                    const tag = document.createElement('span');
+                    tag.className = 'behavior-tag';
+                    tag.textContent = type;
+                    typesContainer.appendChild(tag);
+                });
+            } else {
+                typesContainer.innerHTML = '<div class="alert alert-info">未检测到可疑行为类型</div>';
+            }
+            
+            // 设置行为列表表格
+            const behaviorsTable = document.getElementById('video-behaviors-table');
+            behaviorsTable.innerHTML = '';
+            
+            if (data.behaviors && data.behaviors.length > 0) {
+                data.behaviors.forEach(behavior => {
+                    const row = document.createElement('tr');
+                    
+                    // 时间点单元格
+                    const timeCell = document.createElement('td');
+                    timeCell.textContent = `${behavior.time.toFixed(2)}秒`;
+                    row.appendChild(timeCell);
+                    
+                    // 行为类型单元格
+                    const typeCell = document.createElement('td');
+                    typeCell.textContent = behavior.type;
+                    row.appendChild(typeCell);
+                    
+                    // 置信度单元格
+                    const confCell = document.createElement('td');
+                    confCell.textContent = `${(behavior.confidence * 100).toFixed(1)}%`;
+                    row.appendChild(confCell);
+                    
+                    // 操作单元格
+                    const actionCell = document.createElement('td');
+                    const jumpBtn = document.createElement('button');
+                    jumpBtn.className = 'btn btn-sm btn-primary jump-to-time';
+                    jumpBtn.setAttribute('data-time', behavior.time);
+                    jumpBtn.textContent = '查看';
+                    actionCell.appendChild(jumpBtn);
+                    row.appendChild(actionCell);
+                    
+                    behaviorsTable.appendChild(row);
+                });
+            } else {
+                const row = document.createElement('tr');
+                const cell = document.createElement('td');
+                cell.colSpan = 4;
+                cell.textContent = '未检测到可疑行为';
+                row.appendChild(cell);
+                behaviorsTable.appendChild(row);
+            }
+        }
+        
+        // 视频播放跳转功能
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('jump-to-time')) {
+                const time = parseFloat(e.target.getAttribute('data-time'));
+                if (!isNaN(time)) {
+                    const video = document.getElementById('result-video');
+                    if (video) {
+                        video.currentTime = time;
+                        video.play();
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html> 

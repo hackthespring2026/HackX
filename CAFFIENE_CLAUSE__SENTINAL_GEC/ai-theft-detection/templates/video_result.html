@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>视频分析结果 - 盗窃行为检测系统</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <style>
+        .video-container {
+            width: 100%;
+            height: auto;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 20px;
+            background-color: #000;
+        }
+        .video-container video {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        .behavior-table {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .fixed-aspect-ratio {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 宽高比 */
+            height: 0;
+            overflow: hidden;
+        }
+        .fixed-aspect-ratio video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        .behavior-card {
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        .behavior-count {
+            font-size: 24px;
+            font-weight: bold;
+            color: #dc3545;
+        }
+        .timeline {
+            width: 100%;
+            height: 40px;
+            background-color: #f8f9fa;
+            position: relative;
+            margin-top: 10px;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        .timeline-marker {
+            position: absolute;
+            top: 0;
+            height: 100%;
+            width: 2px;
+            background-color: #dc3545;
+        }
+        .behavior-tag {
+            display: inline-block;
+            padding: 3px 8px;
+            margin-right: 5px;
+            margin-bottom: 5px;
+            border-radius: 12px;
+            background-color: #f8d7da;
+            color: #721c24;
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('index') }}">盗窃行为检测系统</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('index') }}">首页</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('examples') }}">示例</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('about') }}">关于</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <h1 class="mb-4">视频分析结果</h1>
+
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card mb-4">
+                    <div class="card-header bg-dark text-white">
+                        <h5 class="card-title mb-0">处理后的视频</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        {% if result.processed %}
+                        <div class="fixed-aspect-ratio">
+                            <video id="processedVideo" controls>
+                                <source src="{{ url_for('static', filename=result.processed) }}" type="video/mp4">
+                                您的浏览器不支持视频播放
+                            </video>
+                        </div>
+                        <div class="timeline" id="videoTimeline">
+                            {% for frame in result.suspicious_frames %}
+                            <div class="timeline-marker" style="left: {{ (frame / result.suspicious_frames[-1]) * 100 }}%"></div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div class="alert alert-warning m-3">视频处理失败</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card mb-4">
+                    <div class="card-header bg-danger text-white">
+                        <h5 class="card-title mb-0">检测结果摘要</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-6 text-center">
+                                <div class="behavior-count">{{ result.behaviors_count }}</div>
+                                <div>可疑行为总数</div>
+                            </div>
+                            <div class="col-6 text-center">
+                                <div class="behavior-count">{{ result.unique_behaviors_count }}</div>
+                                <div>不同行为类型</div>
+                            </div>
+                        </div>
+                        
+                        <hr>
+                        
+                        <h6>检测到的行为类型:</h6>
+                        <div>
+                            {% set unique_behaviors = {} %}
+                            {% for behavior in result.behaviors %}
+                                {% if behavior.type not in unique_behaviors %}
+                                    {% if unique_behaviors.update({behavior.type: 1}) %}{% endif %}
+                                    <span class="behavior-tag">{{ behavior.description }}</span>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header bg-dark text-white">
+                        <h5 class="card-title mb-0">原始视频</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="fixed-aspect-ratio">
+                            <video controls>
+                                <source src="{{ url_for('static', filename=result.original) }}" type="video/mp4">
+                                您的浏览器不支持视频播放
+                            </video>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-dark text-white">
+                        <h5 class="card-title mb-0">可疑行为详情</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if result.behaviors %}
+                        <div class="behavior-table">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>帧编号</th>
+                                        <th>行为类型</th>
+                                        <th>描述</th>
+                                        <th>置信度</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for behavior in result.behaviors %}
+                                    <tr>
+                                        <td>{{ behavior.frame }}</td>
+                                        <td>{{ behavior.type }}</td>
+                                        <td>{{ behavior.description }}</td>
+                                        <td>{{ "%.2f"|format(behavior.confidence) }}</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-primary jump-to-frame" data-frame="{{ behavior.frame }}">查看</button>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <div class="alert alert-info">未检测到可疑行为</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4 text-center">
+            <a href="{{ url_for('index') }}" class="btn btn-primary">返回首页</a>
+            <a href="{{ url_for('examples') }}" class="btn btn-secondary">查看更多示例</a>
+        </div>
+    </div>
+
+    <footer class="bg-dark text-white text-center py-3 mt-5">
+        <div class="container">
+            <p class="mb-0">© 2023 盗窃行为检测系统 | 零售安防智能分析平台</p>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const processedVideo = document.getElementById('processedVideo');
+            const jumpButtons = document.querySelectorAll('.jump-to-frame');
+            
+            if (processedVideo) {
+                // 获取视频时长和帧率
+                processedVideo.addEventListener('loadedmetadata', function() {
+                    const duration = processedVideo.duration;
+                    const videoFPS = 30; // 假设帧率为30fps，实际情况可能需要从后端传递
+                    
+                    // 为每个"查看"按钮添加点击事件
+                    jumpButtons.forEach(button => {
+                        button.addEventListener('click', function() {
+                            const frameNumber = parseInt(this.getAttribute('data-frame'));
+                            const targetTime = frameNumber / videoFPS;
+                            
+                            // 跳转到对应时间点并播放
+                            if (targetTime <= duration) {
+                                processedVideo.currentTime = targetTime;
+                                processedVideo.play();
+                            }
+                        });
+                    });
+                });
+            }
+            
+            // 如果窗口大小改变，保持视频容器宽高比
+            window.addEventListener('resize', function() {
+                const videoContainers = document.querySelectorAll('.fixed-aspect-ratio');
+                videoContainers.forEach(container => {
+                    // 已经通过CSS的padding-bottom:56.25%保持16:9比例
+                });
+            });
+        });
+    </script>
+</body>
+</html> 
