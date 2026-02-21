@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="Screenshot 2026-02-19 141844.png" type="image/x-icon">
+    <title>Silent Protocol — Chat</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <main class="chat-section">
+
+            <header class="custom-header">
+                <div class="shape-container">
+                    <div class="shape teal-block"></div>
+                    <div class="shape dark-blue-block"></div>
+                    <div class="shape accent-line"></div>
+                </div>
+
+                <div class="header-content">
+                    <div class="logo-outer-glow">
+                        <div class="logo-area">
+                            <img src="Screenshot_2026-02-19_180716-removebg-preview.png" alt="Logo">
+                        </div>
+                    </div>
+                    
+                    <div class="header-right">
+                        <div id="privacy-badge" style="display:none; padding:6px 16px; border-radius:8px; font-size:12px; font-weight:600; font-family:'JetBrains Mono', monospace; letter-spacing:0.5px; z-index: 10;"></div>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="chat-display" id="chatDisplay">
+                <div class="welcome-msg" id="welcomeMsg">
+                    <span class="lock-icon">🔒</span>
+                    <h3>Secure Channel Ready</h3>
+                    <p>Start typing to initiate encrypted conversation</p>
+                </div>
+            </div>
+
+            <footer class="input-area">
+                <input type="text" id="userInput" placeholder="Type a message..." autocomplete="off">
+                <button id="sendBtn" class="send-icon">↑</button>
+            </footer>
+        </main>
+
+        <aside class="sidebar">
+            <button style="margin-left: 20px;" class="reset-btn" id="reset-btn">Reset</button>
+
+            <!-- Privacy Score (Hidden initially) -->
+            <div id="sidebar-score" class="sidebar-section" style="display:none; padding-top: 10px;">
+                <div class="sidebar-section-title">Privacy Score</div>
+                <div style="display:flex; align-items:baseline; gap:6px; margin-bottom:8px;">
+                    <div id="score-value" style="font-size:2.8rem; font-weight:700; font-family:'JetBrains Mono',monospace; color:var(--text-white); line-height:1;">--</div>
+                    <div style="font-size:14px; color:rgba(255,255,255,0.6); font-family:'JetBrains Mono',monospace;">/100</div>
+                    <div id="score-badge" style="padding:4px 12px; border-radius:6px; font-size:12px; font-weight:700; font-family:'JetBrains Mono',monospace; margin-left:auto;"></div>
+                </div>
+                <div id="score-bar-bg" style="width:100%; height:4px; background:rgba(255,255,255,0.1); border-radius:2px; overflow:hidden; margin-bottom:12px;">
+                    <div id="score-bar-fill" style="height:100%; width:0%; border-radius:2px; transition:width 0.8s cubic-bezier(0.33,1,0.68,1);"></div>
+                </div>
+                <div id="score-details" style="font-size:11px; color:rgba(255,255,255,0.7); font-family:'JetBrains Mono',monospace; line-height:1.7; letter-spacing:0.02em;"></div>
+            </div>
+
+            <div id="sidebar-content">
+                <ul class="nav-list">
+                    <li class="active">What AI Sees</li>
+                    <li>Entities Detected</li>
+                    <li>Alias Map</li>
+                </ul>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Markdown Parser -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
