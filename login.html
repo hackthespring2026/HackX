@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RetailGuard AI - Login</title>
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --primary-hover: #1d4ed8;
+            --font-sans: 'Inter', sans-serif;
+        }
+
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: #f8fafc;
+            /* Light Theme Background */
+            font-family: var(--font-sans);
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .auth-container {
+            width: 400px;
+            padding: 40px;
+            background: #ffffff;
+            /* White card */
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            text-align: center;
+        }
+
+        .auth-logo {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            letter-spacing: -0.5px;
+            color: #0f172a;
+            /* Dark gray for light theme */
+        }
+
+        .auth-logo span {
+            color: var(--primary-color);
+        }
+
+        .auth-toggle {
+            display: flex;
+            margin-bottom: 30px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .auth-toggle button {
+            flex: 1;
+            background: none;
+            border: none;
+            color: #64748b;
+            padding: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .auth-toggle button.active {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+        }
+
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            display: none;
+        }
+
+        .auth-form.active {
+            display: flex;
+        }
+
+        .input-group {
+            position: relative;
+            text-align: left;
+        }
+
+        .input-group i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+        }
+
+        .auth-input {
+            width: 100%;
+            padding: 12px 12px 12px 35px;
+            background: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            color: #0f172a;
+            font-family: var(--font-sans);
+            font-size: 14px;
+            transition: border-color 0.3s;
+            box-sizing: border-box;
+        }
+
+        .auth-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            background: #ffffff;
+        }
+
+        .auth-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: 0.3s;
+            font-size: 15px;
+        }
+
+        .auth-btn:hover {
+            background: var(--primary-hover);
+        }
+
+        .auth-error {
+            color: #ef4444;
+            font-size: 13px;
+            margin-top: -5px;
+            display: none;
+        }
+
+        .auth-success {
+            color: #10b981;
+            font-size: 13px;
+            margin-top: -5px;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="auth-container">
+        <div class="auth-logo">
+            <i class="fa-solid fa-shield-halved" style="color: var(--primary-color);"></i>
+            Retail<span>Guard</span> AI
+        </div>
+
+        <div class="auth-toggle">
+            <button id="tab-login" class="active">Login</button>
+            <button id="tab-register">Register</button>
+        </div>
+
+        <!-- Login Form -->
+        <form id="form-login" class="auth-form active">
+            <div class="input-group">
+                <i class="fa-solid fa-user"></i>
+                <input type="text" id="login-username" class="auth-input" placeholder="Username" required>
+            </div>
+            <div class="input-group">
+                <i class="fa-solid fa-lock"></i>
+                <input type="password" id="login-password" class="auth-input" placeholder="Password" required>
+            </div>
+            <p id="login-error" class="auth-error">Invalid credentials</p>
+            <button type="submit" class="auth-btn">Sign In</button>
+        </form>
+
+        <!-- Register Form -->
+        <form id="form-register" class="auth-form">
+            <div class="input-group">
+                <i class="fa-solid fa-user"></i>
+                <input type="text" id="reg-username" class="auth-input" placeholder="Choose a Username" required>
+            </div>
+            <div class="input-group">
+                <i class="fa-solid fa-lock"></i>
+                <input type="password" id="reg-password" class="auth-input" placeholder="Create Password" required>
+            </div>
+            <div class="input-group">
+                <i class="fa-solid fa-lock"></i>
+                <input type="password" id="reg-confirm" class="auth-input" placeholder="Confirm Password" required>
+            </div>
+            <p id="reg-error" class="auth-error">Passwords do not match</p>
+            <p id="reg-success" class="auth-success">Registration successful! Please login.</p>
+            <button type="submit" class="auth-btn">Create Account</button>
+        </form>
+    </div>
+
+    <script>
+        const API_URL = "http://localhost:8080/api";
+
+        // Tab Switching Logic
+        document.getElementById('tab-login').addEventListener('click', () => switchTab('login'));
+        document.getElementById('tab-register').addEventListener('click', () => switchTab('register'));
+
+        function switchTab(tab) {
+            document.getElementById('tab-login').classList.remove('active');
+            document.getElementById('tab-register').classList.remove('active');
+            document.getElementById('form-login').classList.remove('active');
+            document.getElementById('form-register').classList.remove('active');
+
+            document.getElementById(`tab-${tab}`).classList.add('active');
+            document.getElementById(`form-${tab}`).classList.add('active');
+
+            // clear messages
+            document.getElementById('login-error').style.display = 'none';
+            document.getElementById('reg-error').style.display = 'none';
+            document.getElementById('reg-success').style.display = 'none';
+        }
+
+        // Login Logic
+        document.getElementById('form-login').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const u = document.getElementById('login-username').value;
+            const p = document.getElementById('login-password').value;
+            const errEl = document.getElementById('login-error');
+
+            // Basic validation
+            if (!u || !p) return;
+
+            // Show loading state
+            const btn = this.querySelector('button[type="submit"]');
+            const originalText = btn.textContent;
+            btn.textContent = "Signing In...";
+            btn.disabled = true;
+
+            try {
+                const res = await fetch(`${API_URL}/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: u, password: p })
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    localStorage.setItem('rg_token', data.token);
+                    localStorage.setItem('rg_user', data.username);
+                    window.location.href = 'index.html';
+                } else {
+                    const data = await res.json();
+                    errEl.textContent = data.detail || "Login failed";
+                    errEl.style.display = 'block';
+                }
+            } catch (error) {
+                console.error("Login fetch error: ", error);
+                errEl.textContent = "Cannot connect to backend server";
+                errEl.style.display = 'block';
+            } finally {
+                btn.textContent = originalText;
+                btn.disabled = false;
+            }
+        });
+
+        // Register Logic
+        document.getElementById('form-register').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const u = document.getElementById('reg-username').value;
+            const p = document.getElementById('reg-password').value;
+            const pt = document.getElementById('reg-confirm').value;
+            const errEl = document.getElementById('reg-error');
+            const succEl = document.getElementById('reg-success');
+
+            errEl.style.display = 'none';
+            succEl.style.display = 'none';
+
+            if (p !== pt) {
+                errEl.textContent = "Passwords do not match!";
+                errEl.style.display = 'block';
+                return;
+            }
+
+            const btn = this.querySelector('button[type="submit"]');
+            const originalText = btn.textContent;
+            btn.textContent = "Creating...";
+            btn.disabled = true;
+
+            try {
+                const res = await fetch(`${API_URL}/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: u, password: p })
+                });
+
+                if (res.ok) {
+                    succEl.style.display = 'block';
+                    this.reset();
+                    setTimeout(() => switchTab('login'), 2000);
+                } else {
+                    const data = await res.json();
+                    errEl.textContent = data.detail || "Registration failed";
+                    errEl.style.display = 'block';
+                }
+            } catch (error) {
+                console.error("Register fetch error: ", error);
+                errEl.textContent = "Cannot connect to backend server";
+                errEl.style.display = 'block';
+            } finally {
+                btn.textContent = originalText;
+                btn.disabled = false;
+            }
+        });
+    </script>
+</body>
+
+</html>
