@@ -1,0 +1,266 @@
+{
+  "users": [
+    {
+      "id": "admin-001",
+      "username": "admin",
+      "password": "admin123",
+      "role": "admin"
+    },
+    {
+      "id": "BB164E30",
+      "username": "Emp1",
+      "password": "EMP1",
+      "role": "employee"
+    },
+    {
+      "id": "C164D6C7",
+      "username": "nirmalya",
+      "password": "Login@21",
+      "role": "admin"
+    },
+    {
+      "id": "66067EAA",
+      "username": "employ",
+      "password": "emp123",
+      "role": "employee"
+    },
+    {
+      "id": "3354C6E9",
+      "username": "Aadil",
+      "password": "Aadil@2007",
+      "role": "employee"
+    },
+    {
+      "id": "E20E47DC",
+      "username": "Aditi",
+      "password": "Aditi",
+      "role": "employee"
+    },
+    {
+      "id": "4F87C40A",
+      "username": "emp1",
+      "password": "123",
+      "role": "employee"
+    },
+    {
+      "id": "0495B5B9",
+      "username": "Admin2",
+      "password": "admin",
+      "role": "admin"
+    }
+  ],
+  "pos_logs": [
+    {
+      "id": "8D954063-334",
+      "action": "Drawer Opened",
+      "user_id": "BB164E30",
+      "timestamp": "2026-02-20T14:48:16.000671"
+    },
+    {
+      "id": "F10C96DF-260",
+      "action": "Sale Completed",
+      "user_id": "BB164E30",
+      "transaction_amount": 10.0,
+      "timestamp": "2026-02-20T15:04:07.420665"
+    },
+    {
+      "id": "7BDEE936-A4A",
+      "action": "Sale Completed",
+      "user_id": "BB164E30",
+      "transaction_amount": 9.5,
+      "timestamp": "2026-02-20T15:19:21.369058"
+    },
+    {
+      "id": "A375EDB0-2F5",
+      "action": "Sale Completed",
+      "user_id": "66067EAA",
+      "transaction_amount": 21.5,
+      "timestamp": "2026-02-20T17:30:58.459363"
+    },
+    {
+      "id": "77501FAE-845",
+      "action": "Sale Completed",
+      "user_id": "66067EAA",
+      "transaction_amount": 10.5,
+      "timestamp": "2026-02-21T01:14:42.906106"
+    },
+    {
+      "id": "BE58FB9F-CEE",
+      "action": "Sale Completed",
+      "user_id": "66067EAA",
+      "transaction_amount": 7.5,
+      "timestamp": "2026-02-21T05:57:41.444341"
+    },
+    {
+      "id": "8514C201-098",
+      "action": "Sale Completed",
+      "user_id": "66067EAA",
+      "transaction_amount": 7.5,
+      "timestamp": "2026-02-21T06:24:27.173349"
+    },
+    {
+      "id": "E3155966-F44",
+      "action": "Sale Completed",
+      "user_id": "66067EAA",
+      "transaction_amount": 12.5,
+      "timestamp": "2026-02-21T06:30:26.236551"
+    },
+    {
+      "id": "29753F98-CA0",
+      "action": "Sale Completed",
+      "user_id": "66067EAA",
+      "transaction_amount": 7.5,
+      "timestamp": "2026-02-21T07:37:49.423986"
+    },
+    {
+      "id": "2540A2B3-784",
+      "action": "Sale Completed",
+      "user_id": "66067EAA",
+      "transaction_amount": 12.5,
+      "timestamp": "2026-02-21T07:38:02.730547"
+    },
+    {
+      "id": "257B185D-2A9",
+      "action": "Sale Completed",
+      "user_id": "66067EAA",
+      "transaction_amount": 17.5,
+      "timestamp": "2026-02-22T07:46:05.872549"
+    },
+    {
+      "id": "EEBCFF6E-A99",
+      "action": "Sale Completed",
+      "user_id": "3354C6E9",
+      "transaction_amount": 50.5,
+      "timestamp": "2026-02-22T07:48:22.484673"
+    },
+    {
+      "id": "E986C88A-6D9",
+      "action": "Sale Completed",
+      "user_id": "BB164E30",
+      "transaction_amount": 17.5,
+      "timestamp": "2026-02-22T15:18:16.702014"
+    }
+  ],
+  "alerts": [
+    {
+      "id": "E1AE0302-4D2",
+      "type": "critical_hardware",
+      "message": "\ud83d\udea8 CRITICAL: HARDWARE PANIC BUTTON TRIGGERED! EXTERNAL THEFT DETECTED!",
+      "timestamp": "2026-02-22T07:51:14.282238"
+    },
+    {
+      "id": "B940EA7F-5C8",
+      "type": "critical_hardware",
+      "message": "\ud83d\udea8 CRITICAL: HARDWARE PANIC BUTTON TRIGGERED! EXTERNAL THEFT DETECTED!",
+      "timestamp": "2026-02-22T07:51:01.588663"
+    },
+    {
+      "id": "CD785E1B-E7D",
+      "type": "critical_hardware",
+      "message": "\ud83d\udea8 CRITICAL: HARDWARE PANIC BUTTON TRIGGERED! EXTERNAL THEFT DETECTED!",
+      "timestamp": "2026-02-22T07:50:51.001171"
+    },
+    {
+      "id": "2D5CD937-CFF",
+      "type": "critical_hardware",
+      "message": "\ud83d\udea8 CRITICAL: HARDWARE PANIC BUTTON TRIGGERED! EXTERNAL THEFT DETECTED!",
+      "timestamp": "2026-02-22T07:50:39.909719"
+    },
+    {
+      "id": "2C3D8905-328",
+      "type": "critical_hardware",
+      "message": "\ud83d\udea8 CRITICAL: HARDWARE PANIC BUTTON TRIGGERED! EXTERNAL THEFT DETECTED!",
+      "timestamp": "2026-02-22T07:47:03.816406"
+    },
+    {
+      "id": "090B545D-C66",
+      "type": "critical_hardware",
+      "message": "\ud83d\udea8 CRITICAL: HARDWARE PANIC BUTTON TRIGGERED! EXTERNAL THEFT DETECTED!",
+      "timestamp": "2026-02-22T07:45:09.107443"
+    },
+    {
+      "id": "BBE79D9B-0A9",
+      "type": "pacing",
+      "message": "SUSPICIOUS: PACING (30)",
+      "timestamp": "2026-02-22T07:42:19.482289"
+    },
+    {
+      "id": "A4CACED6-3CD",
+      "type": "looking",
+      "message": "SUSPICIOUS: LOOKING AROUND",
+      "timestamp": "2026-02-22T07:42:16.120442"
+    },
+    {
+      "id": "87C9C731-4BC",
+      "type": "pacing",
+      "message": "SUSPICIOUS: PACING (30)",
+      "timestamp": "2026-02-22T07:42:09.440769"
+    },
+    {
+      "id": "FA253049-4F4",
+      "type": "pacing",
+      "message": "SUSPICIOUS: PACING (29)",
+      "timestamp": "2026-02-22T07:41:59.358402"
+    },
+    {
+      "id": "84FC720A-78F",
+      "type": "pacing",
+      "message": "SUSPICIOUS: PACING (27)",
+      "timestamp": "2026-02-22T07:41:49.344044"
+    },
+    {
+      "id": "61011BA3-81F",
+      "type": "pacing",
+      "message": "SUSPICIOUS: PACING (24)",
+      "timestamp": "2026-02-22T07:41:39.157201"
+    },
+    {
+      "id": "A17CD8C8-05D",
+      "type": "pacing",
+      "message": "SUSPICIOUS: PACING (21)",
+      "timestamp": "2026-02-22T07:41:29.085733"
+    },
+    {
+      "id": "8DE4341A-082",
+      "type": "looking",
+      "message": "SUSPICIOUS: LOOKING AROUND",
+      "timestamp": "2026-02-22T07:41:26.413248"
+    },
+    {
+      "id": "EB4C527D-EEA",
+      "type": "pocket",
+      "message": "SUSPICIOUS: POCKET TOUCHING",
+      "timestamp": "2026-02-22T07:41:22.757162"
+    },
+    {
+      "id": "2BF1EBB2-6E0",
+      "type": "pacing",
+      "message": "SUSPICIOUS: PACING (18)",
+      "timestamp": "2026-02-22T07:41:18.827573"
+    },
+    {
+      "id": "F3ACA3CB-35D",
+      "type": "looking",
+      "message": "SUSPICIOUS: LOOKING AROUND",
+      "timestamp": "2026-02-22T07:41:15.695075"
+    },
+    {
+      "id": "37AE9692-A2C",
+      "type": "theft",
+      "message": "CASH DRAWER THEFT! Stolen: 100 INR | Total Loss: 9900 INR",
+      "timestamp": "2026-02-22T07:41:12.518924"
+    },
+    {
+      "id": "634CBCF5-305",
+      "type": "theft",
+      "message": "CASH DRAWER THEFT! Stolen: 100 INR | Total Loss: 9800 INR",
+      "timestamp": "2026-02-22T07:41:10.363110"
+    },
+    {
+      "id": "321BC42F-3BD",
+      "type": "pacing",
+      "message": "SUSPICIOUS: PACING (15)",
+      "timestamp": "2026-02-22T07:41:08.633982"
+    }
+  ]
+}

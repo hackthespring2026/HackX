@@ -1,0 +1,85 @@
+#include <ESP8266WiFi.h>
+#include <ESP8266HTTPClient.h>
+#include <WiFiClient.h>
+
+// --- WiFi Credentials ---
+const char* ssid = "GATEWAY";
+const char* password = "D8B63192";
+
+// --- Server URL ---
+const char* serverName = "http://64.227.160.247:8000/esp_alert";
+
+// --- Hardware Setup ---
+const int touchPin = D2;  // The pin connected to the Touch Sensor
+int touchState = 0;
+
+// --- Cooldown Logic ---
+unsigned long lastAlertTime = 0;
+const unsigned long cooldownDelay = 10000; // 10 seconds between alerts
+
+void setup() {
+  Serial.begin(115200);
+  pinMode(touchPin, INPUT);
+
+  // Connect to Wi-Fi
+  Serial.println();
+  Serial.print("Connecting to WiFi Network: ");
+  Serial.println(ssid);
+  
+  WiFi.begin(ssid, password);
+  
+  while(WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  
+  Serial.println("");
+  Serial.println("✅ WiFi Connected Successfully!");
+  Serial.print("IP Address: ");
+  Serial.println(WiFi.localIP());
+  Serial.println("🛡️ ESP8266 Hardware Panic Button Armed and Ready.");
+}
+
+void loop() {
+  // Read the state of the touch sensor
+  touchState = digitalRead(touchPin);
+
+  // If the sensor is touched (usually goes HIGH, but change to LOW if your sensor is inverted)
+  if (touchState == HIGH) {
+    
+    // Check if 10 seconds have passed since the last alert
+    if ((millis() - lastAlertTime) > cooldownDelay || lastAlertTime == 0) {
+      
+      if (WiFi.status() == WL_CONNECTED) {
+        WiFiClient client;
+        HTTPClient http;
+        
+        Serial.println("🚨 PANIC BUTTON TOUCHED! Sending to Cloud...");
+
+        // Initialize the HTTP GET request
+        http.begin(client, serverName);
+        
+        // Send the request
+        int httpResponseCode = http.GET();
+        
+        if (httpResponseCode > 0) {
+          Serial.print("✅ Server Received Alert! HTTP Response Code: ");
+          Serial.println(httpResponseCode);
+        } else {
+          Serial.print("❌ Error sending request. Code: ");
+          Serial.println(httpResponseCode);
+        }
+        
+        // Free up resources
+        http.end();
+        
+        // Reset the cooldown timer
+        lastAlertTime = millis();
+        
+      } else {
+        Serial.println("❌ WiFi Disconnected. Reconnecting...");
+        WiFi.reconnect();
+      }
+    }
+  }
+}
